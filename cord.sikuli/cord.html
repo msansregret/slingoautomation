@@ -1,0 +1,362 @@
+
+<html>
+   <head>
+      <style type="text/css">
+         .sikuli-code {
+            font-size: 20px;
+            font-family: "Osaka-mono", Monospace;
+            line-height: 1.5em;
+            display:table-cell;
+            white-space: pre-wrap;       /* css-3 */
+            white-space: -moz-pre-wrap !important;  /* Mozilla, since 1999 */
+            white-space: -pre-wrap;      /* Opera 4-6 */
+            white-space: -o-pre-wrap;    /* Opera 7 */
+            word-wrap: break-word;       /* Internet Explorer 5.5+ */
+            width: 99%;   /* remove horizontal scroll-bar when viewing in IE7 */
+         }
+         .sikuli-code img {
+            vertical-align: middle;
+            margin: 2px;
+            border: 1px solid #ccc;
+            padding: 2px;
+            -moz-border-radius: 5px;
+            -webkit-border-radius: 5px;
+            -moz-box-shadow: 1px 1px 1px gray;
+            -webkit-box-shadow: 1px 1px 2px gray;
+         }
+         .kw {
+            color: blue;
+         }
+         .skw {
+            color: rgb(63, 127, 127);
+         }
+
+         .str {
+            color: rgb(128, 0, 0);
+         }
+
+         .dig {
+            color: rgb(128, 64, 0);
+         }
+
+         .cmt {
+            color: rgb(200, 0, 200);
+         }
+
+         h2 {
+            display: inline;
+            font-weight: normal;
+         }
+
+         .info {
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 5px;
+            margin-bottom: 20px;
+            display: none;
+         }
+
+         a {
+            color: #9D2900;
+         }
+
+         body {
+            font-family: "Trebuchet MS", Arial, Sans-Serif;
+         }
+
+      </style>
+   </head>
+<body>
+<div class="info">
+<h2>cord.sikuli</h2> <a href="cord.zip">(Download this script)</a>
+</div>
+<pre class="sikuli-code">
+<span class="cmt">#This module contains a class called Cord which stores co-ordinates</span>
+<span class="kw">from</span> point <span class="kw">import</span> Point
+
+<span class="kw">class</span> Cord:
+
+    tiles5x5 = [
+    Point(<span class="dig">377</span>,<span class="dig">157</span>),
+    Point(<span class="dig">377</span>,<span class="dig">222</span>),
+    Point(<span class="dig">376</span>,<span class="dig">352</span>),
+    Point(<span class="dig">374</span>,<span class="dig">420</span>),
+    Point(<span class="dig">245</span>,<span class="dig">289</span>),
+    Point(<span class="dig">307</span>,<span class="dig">288</span>),
+    Point(<span class="dig">441</span>,<span class="dig">289</span>),
+    Point(<span class="dig">508</span>,<span class="dig">289</span>),
+    Point(<span class="dig">309</span>,<span class="dig">160</span>),
+    Point(<span class="dig">440</span>,<span class="dig">156</span>),
+    Point(<span class="dig">242</span>,<span class="dig">223</span>),
+    Point(<span class="dig">505</span>,<span class="dig">221</span>),
+    Point(<span class="dig">244</span>,<span class="dig">353</span>),
+    Point(<span class="dig">508</span>,<span class="dig">355</span>),
+    Point(<span class="dig">308</span>,<span class="dig">420</span>),
+    Point(<span class="dig">444</span>,<span class="dig">421</span>),
+    Point(<span class="dig">244</span>,<span class="dig">157</span>),
+    Point(<span class="dig">507</span>,<span class="dig">158</span>),
+    Point(<span class="dig">247</span>,<span class="dig">421</span>),
+    Point(<span class="dig">506</span>,<span class="dig">422</span>),
+    Point(<span class="dig">310</span>,<span class="dig">223</span>),
+    Point(<span class="dig">440</span>,<span class="dig">224</span>),
+    Point(<span class="dig">313</span>,<span class="dig">356</span>),
+    Point(<span class="dig">440</span>,<span class="dig">354</span>),
+    Point(<span class="dig">375</span>,<span class="dig">284</span>)
+    ]
+
+    tiles7x7 = [
+    Point(<span class="dig">377</span>,<span class="dig">151</span>),
+    Point(<span class="dig">378</span>,<span class="dig">198</span>),
+    Point(<span class="dig">376</span>,<span class="dig">245</span>),
+    Point(<span class="dig">376</span>,<span class="dig">340</span>),
+    Point(<span class="dig">375</span>,<span class="dig">382</span>),
+    Point(<span class="dig">377</span>,<span class="dig">430</span>),
+    Point(<span class="dig">238</span>,<span class="dig">289</span>),
+    Point(<span class="dig">279</span>,<span class="dig">289</span>),
+    Point(<span class="dig">329</span>,<span class="dig">290</span>),
+    Point(<span class="dig">422</span>,<span class="dig">290</span>),
+    Point(<span class="dig">468</span>,<span class="dig">290</span>),
+    Point(<span class="dig">517</span>,<span class="dig">290</span>),
+    Point(<span class="dig">283</span>,<span class="dig">151</span>),
+    Point(<span class="dig">330</span>,<span class="dig">151</span>),
+    Point(<span class="dig">424</span>,<span class="dig">151</span>),
+    Point(<span class="dig">477</span>,<span class="dig">151</span>),
+    Point(<span class="dig">240</span>,<span class="dig">198</span>),
+    Point(<span class="dig">333</span>,<span class="dig">197</span>),
+    Point(<span class="dig">421</span>,<span class="dig">196</span>),
+    Point(<span class="dig">513</span>,<span class="dig">197</span>),
+    Point(<span class="dig">236</span>,<span class="dig">242</span>),
+    Point(<span class="dig">285</span>,<span class="dig">243</span>),
+    Point(<span class="dig">471</span>,<span class="dig">244</span>),
+    Point(<span class="dig">516</span>,<span class="dig">247</span>),
+    Point(<span class="dig">235</span>,<span class="dig">338</span>),
+    Point(<span class="dig">284</span>,<span class="dig">338</span>),
+    Point(<span class="dig">468</span>,<span class="dig">338</span>),
+    Point(<span class="dig">515</span>,<span class="dig">338</span>),
+    Point(<span class="dig">241</span>,<span class="dig">385</span>),
+    Point(<span class="dig">330</span>,<span class="dig">386</span>),
+    Point(<span class="dig">423</span>,<span class="dig">385</span>),
+    Point(<span class="dig">515</span>,<span class="dig">384</span>),
+    Point(<span class="dig">286</span>,<span class="dig">429</span>),
+    Point(<span class="dig">331</span>,<span class="dig">430</span>),
+    Point(<span class="dig">424</span>,<span class="dig">431</span>),
+    Point(<span class="dig">465</span>,<span class="dig">431</span>),
+    Point(<span class="dig">238</span>,<span class="dig">147</span>),
+    Point(<span class="dig">516</span>,<span class="dig">153</span>),
+    Point(<span class="dig">240</span>,<span class="dig">432</span>),
+    Point(<span class="dig">515</span>,<span class="dig">431</span>),
+    Point(<span class="dig">285</span>,<span class="dig">198</span>),
+    Point(<span class="dig">464</span>,<span class="dig">198</span>),
+    Point(<span class="dig">284</span>,<span class="dig">386</span>),
+    Point(<span class="dig">465</span>,<span class="dig">385</span>),
+    Point(<span class="dig">332</span>,<span class="dig">244</span>),
+    Point(<span class="dig">422</span>,<span class="dig">243</span>),
+    Point(<span class="dig">329</span>,<span class="dig">338</span>),
+    Point(<span class="dig">425</span>,<span class="dig">339</span>),
+    Point(<span class="dig">377</span>,<span class="dig">291</span>)
+    ]
+
+    <span class="cmt">#A list of point class objects containing the x and y values of each level node</span>
+    lvl1 = Point(<span class="dig">170</span>,<span class="dig">368</span>)
+    lvl2 = Point(<span class="dig">154</span>,<span class="dig">486</span>)
+    lvl3 = Point(<span class="dig">266</span>,<span class="dig">539</span>)
+    lvl4 = Point(<span class="dig">380</span>,<span class="dig">549</span>)
+    lvl5 = Point(<span class="dig">499</span>,<span class="dig">535</span>)
+    lvl6 = Point(<span class="dig">592</span>,<span class="dig">492</span>)
+    lvl7 = Point(<span class="dig">623</span>,<span class="dig">344</span>)
+    lvl8 = Point(<span class="dig">527</span>,<span class="dig">291</span>)
+    lvl9 = Point(<span class="dig">445</span>,<span class="dig">204</span>)
+    lvl10 = Point(<span class="dig">471</span>,<span class="dig">89</span>)
+    lvl11 = Point(<span class="dig">658</span>,<span class="dig">632</span>)
+    lvl12 = Point(<span class="dig">658</span>,<span class="dig">531</span>)
+    lvl13 = Point(<span class="dig">585</span>,<span class="dig">490</span>)
+    lvl14 = Point(<span class="dig">486</span>,<span class="dig">480</span>)
+    lvl15 = Point(<span class="dig">391</span>,<span class="dig">487</span>)
+    lvl16 = Point(<span class="dig">290</span>,<span class="dig">492</span>)
+    lvl17 = Point(<span class="dig">193</span>,<span class="dig">475</span>)
+    lvl18 = Point(<span class="dig">112</span>,<span class="dig">428</span>)
+    lvl19 = Point(<span class="dig">62</span>,<span class="dig">352</span>)
+    lvl20 = Point(<span class="dig">88</span>,<span class="dig">257</span>)
+    lvl21 = Point(<span class="dig">148</span>,<span class="dig">201</span>)
+    lvl22 = Point(<span class="dig">348</span>,<span class="dig">205</span>)
+    lvl23 = Point(<span class="dig">441</span>,<span class="dig">231</span>)
+    lvl24 = Point(<span class="dig">548</span>,<span class="dig">211</span>)
+    lvl25 = Point(<span class="dig">629</span>,<span class="dig">142</span>)
+    lvl26 = Point(<span class="dig">673</span>,<span class="dig">625</span>)
+    lvl27 = Point(<span class="dig">578</span>,<span class="dig">533</span>)
+    lvl28 = Point(<span class="dig">473</span>,<span class="dig">518</span>)
+    lvl29 = Point(<span class="dig">357</span>,<span class="dig">532</span>)
+    lvl30 = Point(<span class="dig">244</span>,<span class="dig">555</span>)
+    lvl31 = Point(<span class="dig">129</span>,<span class="dig">502</span>)
+    lvl32 = Point(<span class="dig">118</span>,<span class="dig">366</span>)
+    lvl33 = Point(<span class="dig">178</span>,<span class="dig">269</span>)
+    lvl34 = Point(<span class="dig">374</span>,<span class="dig">246</span>)
+    lvl35 = Point(<span class="dig">460</span>,<span class="dig">265</span>)
+    lvl36 = Point(<span class="dig">552</span>,<span class="dig">304</span>)
+    lvl37 = Point(<span class="dig">634</span>,<span class="dig">333</span>)
+    lvl38 = Point(<span class="dig">706</span>,<span class="dig">268</span>)
+    lvl39 = Point(<span class="dig">654</span>,<span class="dig">135</span>)
+    lvl40 = Point(<span class="dig">574</span>,<span class="dig">92</span>)
+    lvl41 = Point(<span class="dig">229</span>,<span class="dig">627</span>)
+    lvl42 = Point(<span class="dig">162</span>,<span class="dig">561</span>)
+    lvl43 = Point(<span class="dig">132</span>,<span class="dig">456</span>)
+    lvl44 = Point(<span class="dig">154</span>,<span class="dig">360</span>)
+    lvl45 = Point(<span class="dig">229</span>,<span class="dig">313</span>)
+    lvl46 = Point(<span class="dig">398</span>,<span class="dig">350</span>)
+    lvl47 = Point(<span class="dig">514</span>,<span class="dig">386</span>)
+    lvl48 = Point(<span class="dig">675</span>,<span class="dig">353</span>)
+    lvl49 = Point(<span class="dig">714</span>,<span class="dig">243</span>)
+    lvl50 = Point(<span class="dig">642</span>,<span class="dig">181</span>)
+    lvl51 = Point(<span class="dig">472</span>,<span class="dig">143</span>)
+    lvl52 = Point(<span class="dig">386</span>,<span class="dig">146</span>)
+    lvl53 = Point(<span class="dig">290</span>,<span class="dig">149</span>)
+    lvl54 = Point(<span class="dig">196</span>,<span class="dig">144</span>)
+    lvl55 = Point(<span class="dig">91</span>,<span class="dig">104</span>)
+    lvl56 = Point(<span class="dig">118</span>,<span class="dig">563</span>)
+    lvl57 = Point(<span class="dig">294</span>,<span class="dig">481</span>)
+    lvl58 = Point(<span class="dig">419</span>,<span class="dig">498</span>)
+    lvl59 = Point(<span class="dig">555</span>,<span class="dig">507</span>)
+    lvl60 = Point(<span class="dig">664</span>,<span class="dig">459</span>)
+    lvl61 = Point(<span class="dig">709</span>,<span class="dig">342</span>)
+    lvl62 = Point(<span class="dig">628</span>,<span class="dig">239</span>)
+    lvl63 = Point(<span class="dig">522</span>,<span class="dig">226</span>)
+    lvl64 = Point(<span class="dig">304</span>,<span class="dig">292</span>)
+    lvl65 = Point(<span class="dig">193</span>,<span class="dig">311</span>)
+    lvl66 = Point(<span class="dig">96</span>,<span class="dig">235</span>)
+    lvl67 = Point(<span class="dig">160</span>,<span class="dig">138</span>)
+    lvl68 = Point(<span class="dig">266</span>,<span class="dig">117</span>)
+    lvl69 = Point(<span class="dig">460</span>,<span class="dig">112</span>)
+    lvl70 = Point(<span class="dig">563</span>,<span class="dig">98</span>)
+    lvl71 = Point(<span class="dig">495</span>,<span class="dig">604</span>)
+    lvl72 = Point(<span class="dig">343</span>,<span class="dig">606</span>)
+    lvl73 = Point(<span class="dig">225</span>,<span class="dig">579</span>)
+    lvl74 = Point(<span class="dig">106</span>,<span class="dig">505</span>)
+    lvl75 = Point(<span class="dig">106</span>,<span class="dig">406</span>)
+    lvl76 = Point(<span class="dig">203</span>,<span class="dig">354</span>)
+    lvl77 = Point(<span class="dig">342</span>,<span class="dig">339</span>)
+    lvl78 = Point(<span class="dig">482</span>,<span class="dig">358</span>)
+    lvl79 = Point(<span class="dig">583</span>,<span class="dig">353</span>)
+    lvl80 = Point(<span class="dig">683</span>,<span class="dig">313</span>)
+    lvl81 = Point(<span class="dig">698</span>,<span class="dig">175</span>)
+    lvl82 = Point(<span class="dig">549</span>,<span class="dig">105</span>)
+    lvl83 = Point(<span class="dig">426</span>,<span class="dig">117</span>)
+    lvl84 = Point(<span class="dig">305</span>,<span class="dig">141</span>)
+    lvl85 = Point(<span class="dig">179</span>,<span class="dig">147</span>)
+    lvl86 = Point(<span class="dig">230</span>,<span class="dig">612</span>)
+    lvl87 = Point(<span class="dig">309</span>,<span class="dig">571</span>)
+    lvl88 = Point(<span class="dig">409</span>,<span class="dig">529</span>)
+    lvl89 = Point(<span class="dig">533</span>,<span class="dig">470</span>)
+    lvl90 = Point(<span class="dig">610</span>,<span class="dig">421</span>)
+    lvl91 = Point(<span class="dig">691</span>,<span class="dig">287</span>)
+    lvl92 = Point(<span class="dig">511</span>,<span class="dig">166</span>)
+    lvl93 = Point(<span class="dig">400</span>,<span class="dig">129</span>)
+    lvl94 = Point(<span class="dig">232</span>,<span class="dig">151</span>)
+    lvl95 = Point(<span class="dig">158</span>,<span class="dig">207</span>)
+    lvl96 = Point(<span class="dig">106</span>,<span class="dig">326</span>)
+    lvl97 = Point(<span class="dig">208</span>,<span class="dig">399</span>)
+    lvl98 = Point(<span class="dig">324</span>,<span class="dig">408</span>)
+    lvl99 = Point(<span class="dig">440</span>,<span class="dig">379</span>)
+    lvl100 = Point(<span class="dig">538</span>,<span class="dig">316</span>)
+
+    lvlList = [lvl1,
+    lvl2,
+    lvl3,
+    lvl4,
+    lvl5,
+    lvl6,
+    lvl7,
+    lvl8,
+    lvl9,
+    lvl10,
+    lvl11,
+    lvl12,
+    lvl13,
+    lvl14,
+    lvl15,
+    lvl16,
+    lvl17,
+    lvl18,
+    lvl19,
+    lvl20,
+    lvl21,
+    lvl22,
+    lvl23,
+    lvl24,
+    lvl25,
+    lvl26,
+    lvl27,
+    lvl28,
+    lvl29,
+    lvl30,
+    lvl31,
+    lvl32,
+    lvl33,
+    lvl34,
+    lvl35,
+    lvl36,
+    lvl37,
+    lvl38,
+    lvl39,
+    lvl40,
+    lvl41,
+    lvl42,
+    lvl43,
+    lvl44,
+    lvl45,
+    lvl46,
+    lvl47,
+    lvl48,
+    lvl49,
+    lvl50,
+    lvl51,
+    lvl52,
+    lvl53,
+    lvl54,
+    lvl55,
+    lvl56,
+    lvl57,
+    lvl58,
+    lvl59,
+    lvl60,
+    lvl61,
+    lvl62,
+    lvl63,
+    lvl64,
+    lvl65,
+    lvl66,
+    lvl67,
+    lvl68,
+    lvl69,
+    lvl70,
+    lvl71,
+    lvl72,
+    lvl73,
+    lvl74,
+    lvl75,
+    lvl76,
+    lvl77,
+    lvl78,
+    lvl79,
+    lvl80,
+    lvl81,
+    lvl82,
+    lvl83,
+    lvl84,
+    lvl85,
+    lvl86,
+    lvl87,
+    lvl88,
+    lvl89,
+    lvl90,
+    lvl91,
+    lvl92,
+    lvl93,
+    lvl94,
+    lvl95,
+    lvl96,
+    lvl97,
+    lvl98,
+    lvl99,
+    lvl100]
+</pre>
+</body>
+</html>

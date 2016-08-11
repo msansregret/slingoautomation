@@ -1,0 +1,242 @@
+
+<html>
+   <head>
+      <style type="text/css">
+         .sikuli-code {
+            font-size: 20px;
+            font-family: "Osaka-mono", Monospace;
+            line-height: 1.5em;
+            display:table-cell;
+            white-space: pre-wrap;       /* css-3 */
+            white-space: -moz-pre-wrap !important;  /* Mozilla, since 1999 */
+            white-space: -pre-wrap;      /* Opera 4-6 */
+            white-space: -o-pre-wrap;    /* Opera 7 */
+            word-wrap: break-word;       /* Internet Explorer 5.5+ */
+            width: 99%;   /* remove horizontal scroll-bar when viewing in IE7 */
+         }
+         .sikuli-code img {
+            vertical-align: middle;
+            margin: 2px;
+            border: 1px solid #ccc;
+            padding: 2px;
+            -moz-border-radius: 5px;
+            -webkit-border-radius: 5px;
+            -moz-box-shadow: 1px 1px 1px gray;
+            -webkit-box-shadow: 1px 1px 2px gray;
+         }
+         .kw {
+            color: blue;
+         }
+         .skw {
+            color: rgb(63, 127, 127);
+         }
+
+         .str {
+            color: rgb(128, 0, 0);
+         }
+
+         .dig {
+            color: rgb(128, 64, 0);
+         }
+
+         .cmt {
+            color: rgb(200, 0, 200);
+         }
+
+         h2 {
+            display: inline;
+            font-weight: normal;
+         }
+
+         .info {
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 5px;
+            margin-bottom: 20px;
+            display: none;
+         }
+
+         a {
+            color: #9D2900;
+         }
+
+         body {
+            font-family: "Trebuchet MS", Arial, Sans-Serif;
+         }
+
+      </style>
+   </head>
+<body>
+<div class="info">
+<h2>testsuite_ad_monitor.sikuli</h2> <a href="testsuite_ad_monitor.zip">(Download this script)</a>
+</div>
+<pre class="sikuli-code">
+<span class="str">"""Dev tests for MAC machine."""</span>
+<span class="kw">import</span> unittest
+<span class="kw">import</span> datetime
+<span class="kw">import</span> sys
+<span class="kw">import</span> traceback
+
+<span class="kw">import</span> json
+<span class="kw">import</span> urllib2
+
+<span class="kw">import</span> sikuliTestBotV2 <span class="kw">as</span> bot
+<span class="kw">from</span> test_data <span class="kw">import</span> *
+
+settings = {
+    <span class="str">'operating_system'</span>: <span class="str">'MAC'</span>,
+    <span class="str">'fb_username'</span>: <span class="str">'skeletorlovesbeastman@gmail.com'</span>,
+    <span class="str">'fb_password'</span>: <span class="str">'jasper123'</span>,
+    <span class="str">'env_url'</span>: <span class="str">r'https://apps.facebook.com/slingoadventure/'</span>
+}
+
+
+<span class="cmt"># information about test passes (iterations); different for each iteration.</span>
+<span class="cmt"># TODO: Get maximum testPassID, so we don't have to input it manually.</span>
+test_pass_data = {
+    <span class="str">'testPassName'</span>: <span class="str">'Ad Monitoring'</span>,
+    <span class="str">'version'</span>: <span class="str">'SA Canvas 16.07.25'</span>,
+    <span class="str">'testPassID'</span>: <span class="str">'-1'</span>
+}
+
+
+<span class="kw">def</span> getTestPassID():
+    <span class="str">"""Automatically set iteration number.
+
+    Connects to nodeJS server, call endpoint to get current highest iteration,
+    plus 1, and set the correct iteration number, so we don't have to input
+    it manually.
+
+    """</span>
+    catfish_url = <span class="str">'http://192.168.8.167:4711/api/current-highest-iteration/'</span>
+    data = json.load(urllib2.urlopen(catfish_url))
+    test_pass_data[<span class="str">'testPassID'</span>] = data[<span class="str">'testPassID'</span>] + <span class="dig">1</span>
+
+
+<span class="kw">class</span> TestSuiteAdMonitor(unittest.TestCase):
+    <span class="str">"""Run automation tests using the tests defined in sikuliTestBotV2.
+
+    Normally unittest should not depend on each other, so our sequencial test is
+    bad practice. But for now, let's just hack function names and make it work.
+
+    """</span>
+
+    <span class="kw">def</span> setUp(self):
+        <span class="str">"""Set up date and time value for reporting."""</span>
+        now = datetime.datetime.now()
+        self.current_date = now.strftime(<span class="str">"%Y-%m-%d"</span>)
+        self.current_time = now.strftime(<span class="str">"%H:%M"</span>)
+        self.test_number = <span class="dig">0</span>
+
+    <span class="kw">def</span> tearDown(self):
+        <span class="str">"""Collect test result and information, and create a JSON file."""</span>
+        <span class="cmt"># if it's 0, we don't need to report it. i.e. close chrome test</span>
+        <span class="kw">if</span> self.test_number == <span class="dig">0</span>:
+            <span class="kw">return</span>
+
+        this_test = TEST_DATA[self.test_number]
+
+        <span class="cmt"># if test result is E or F, this capture the traceback information</span>
+        exc_type, exc_value, exc_traceback = sys.exc_info()
+
+        <span class="kw">if</span> exc_type <span class="kw">is</span> None:
+            <span class="cmt"># Nothing happened, we pass the test!</span>
+            bot.create_test_json(test_pass_data[<span class="str">'testPassName'</span>],
+                                 test_pass_data[<span class="str">'testPassID'</span>],
+                                 self.test_number, this_test[<span class="str">'name'</span>],
+                                 this_test[<span class="str">'description'</span>],
+                                 self.current_date, self.current_time,
+                                 test_pass_data[<span class="str">'version'</span>], <span class="str">'pass'</span>, <span class="str">''</span>)
+
+        <span class="kw">elif</span> exc_type <span class="kw">is</span> AssertionError:
+            <span class="cmt"># Either our script has gone wrong, or the game has gone wrong!</span>
+            formatted_lines = traceback.format_exc().splitlines()
+            <span class="kw">print</span>(<span class="str">"*"</span> * <span class="dig">50</span>)
+            <span class="kw">print</span>(exc_type)
+            <span class="kw">print</span>(exc_value)
+            error_message = <span class="str">''</span>
+            <span class="kw">for</span> line <span class="kw">in</span> formatted_lines:
+                error_message += line + <span class="str">'&lt;br&gt;'</span>
+                <span class="cmt"># now error_message contains the stacktrack message you would</span>
+                <span class="cmt"># normally see in a Python session</span>
+                bot.create_test_json(test_pass_data[<span class="str">'testPassName'</span>],
+                                     test_pass_data[<span class="str">'testPassID'</span>],
+                                     self.test_number, this_test[<span class="str">'name'</span>],
+                                     this_test[<span class="str">'description'</span>],
+                                     self.current_date, self.current_time,
+                                     test_pass_data[<span class="str">'version'</span>], <span class="str">'fail'</span>,
+                                     error_message)
+            <span class="kw">print</span>(error_message)
+
+        <span class="kw">else</span>:
+            <span class="cmt"># An error has occured. Mostly because of our script.</span>
+            formatted_lines = traceback.format_exc().splitlines()
+            <span class="kw">print</span>(<span class="str">"*"</span> * <span class="dig">50</span>)
+            <span class="kw">print</span>(exc_type)
+            <span class="kw">print</span>(exc_value)
+            error_message = <span class="str">''</span>
+            <span class="kw">for</span> line <span class="kw">in</span> formatted_lines:
+                error_message += line + <span class="str">'&lt;br&gt;'</span>
+                bot.create_test_json(test_pass_data[<span class="str">'iteration'</span>],
+                                     self.test_number, this_test[<span class="str">'name'</span>],
+                                     this_test[<span class="str">'description'</span>],
+                                     self.current_date, self.current_time,
+                                     test_pass_data[<span class="str">'version'</span>], <span class="str">'pending'</span>,
+                                     error_message)
+            <span class="kw">print</span>(error_message)
+
+    <span class="kw">def</span> test_01_launch_chrome(self):
+        <span class="str">"""Launch chrome."""</span>
+        self.test_number = <span class="str">'ac1'</span>
+        bot.setup_chrome(settings[<span class="str">'operating_system'</span>],
+                         settings[<span class="str">'fb_username'</span>],
+                         settings[<span class="str">'fb_password'</span>],
+                         settings[<span class="str">'env_url'</span>])
+
+    <span class="kw">def</span> test_02_check_load_slingo(self):
+        <span class="str">"""Log into facebook, and attempt to load slingo.
+
+        Facebook changed its app login behaviour. Now we need to login first,
+        then go to QA URL. 
+
+        Unless server is down, or our dev environment setup has problem, 
+        this test should never fail.
+
+        """</span>
+        self.test_number = <span class="str">'ac2'</span>
+        bot.check_load_slingo()
+
+    <span class="kw">def</span> test_03_reward_video_coins(self):
+        self.test_number = <span class="str">'ac19'</span>
+        bot.check_reward_video_coins(cadence=<span class="dig">5</span>)
+
+    <span class="kw">def</span> test_04_reward_video_finalspins(self):
+        self.test_number = <span class="str">'ac20'</span>
+        bot.check_rva_finalspins(cadence=<span class="dig">3</span>, numtests=<span class="dig">2</span>)
+
+    <span class="kw">def</span> test_05_interstitial_ads(self):
+        self.test_number = <span class="str">'ac21'</span>
+        bot.check_inter_ad(<span class="dig">3</span>, <span class="dig">5</span>)
+
+
+<span class="kw">def</span> suite():
+    <span class="str">"""Assemble tests."""</span>
+    test_suite = unittest.TestSuite()
+    test_suite.addTest(unittest.makeSuite(TestSuiteAdMonitor))
+    <span class="kw">return</span> test_suite
+
+
+<span class="cmt"># before we run a new test suite, delete the existing reports first, in case</span>
+<span class="cmt"># we didn't use send_json.py last time</span>
+<span class="kw">def</span> delete_content():
+    <span class="str">"""Now that we've sent JSON, delete this file for future use."""</span>
+    <span class="kw">with</span> open(<span class="str">'output.json'</span>, <span class="str">'w'</span>):
+        <span class="kw">pass</span>
+
+delete_content()
+getTestPassID()
+mySuite = suite()
+runner = unittest.TextTestRunner()
+runner.run(mySuite)
+</pre>
+</body>
+</html>

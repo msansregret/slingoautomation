@@ -1,0 +1,213 @@
+
+<html>
+   <head>
+      <style type="text/css">
+         .sikuli-code {
+            font-size: 20px;
+            font-family: "Osaka-mono", Monospace;
+            line-height: 1.5em;
+            display:table-cell;
+            white-space: pre-wrap;       /* css-3 */
+            white-space: -moz-pre-wrap !important;  /* Mozilla, since 1999 */
+            white-space: -pre-wrap;      /* Opera 4-6 */
+            white-space: -o-pre-wrap;    /* Opera 7 */
+            word-wrap: break-word;       /* Internet Explorer 5.5+ */
+            width: 99%;   /* remove horizontal scroll-bar when viewing in IE7 */
+         }
+         .sikuli-code img {
+            vertical-align: middle;
+            margin: 2px;
+            border: 1px solid #ccc;
+            padding: 2px;
+            -moz-border-radius: 5px;
+            -webkit-border-radius: 5px;
+            -moz-box-shadow: 1px 1px 1px gray;
+            -webkit-box-shadow: 1px 1px 2px gray;
+         }
+         .kw {
+            color: blue;
+         }
+         .skw {
+            color: rgb(63, 127, 127);
+         }
+
+         .str {
+            color: rgb(128, 0, 0);
+         }
+
+         .dig {
+            color: rgb(128, 64, 0);
+         }
+
+         .cmt {
+            color: rgb(200, 0, 200);
+         }
+
+         h2 {
+            display: inline;
+            font-weight: normal;
+         }
+
+         .info {
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 5px;
+            margin-bottom: 20px;
+            display: none;
+         }
+
+         a {
+            color: #9D2900;
+         }
+
+         body {
+            font-family: "Trebuchet MS", Arial, Sans-Serif;
+         }
+
+      </style>
+   </head>
+<body>
+<div class="info">
+<h2>testsuite_iMac-01.sikuli</h2> <a href="testsuite_iMac-01.zip">(Download this script)</a>
+</div>
+<pre class="sikuli-code">
+<span class="kw">import</span> os
+<span class="kw">import</span> time
+<span class="kw">import</span> sys
+<span class="kw">import</span> re
+<span class="kw">from</span> emailer <span class="kw">import</span> sendMailAttach
+<span class="kw">from</span> sikuliTestBotV2 <span class="kw">import</span> *
+<span class="kw">import</span> unittest
+<span class="kw">import</span> HTMLTestRunner
+reload(HTMLTestRunner)
+
+fbUser1 = <span class="str">"automation_qfhrcjq_test@tfbnw.net"</span>
+fbPassword1 = <span class="str">"test123"</span>
+
+fbUser2 = <span class="str">"automation_xnzemdf_two@tfbnw.net"</span>
+fbPassword2 = <span class="str">"test123"</span>
+
+fbUser3 = <span class="str">"automation_wicxbhy_three@tfbnw.net"</span>
+fbPassword3 = <span class="str">"test123"</span>
+
+fbUser4 = <span class="str">"automation_wwjankw_four@tfbnw.net"</span>
+fbPassword4 = <span class="str">"test123"</span>
+
+fbUser5 = <span class="str">"automation_smzecuc_five@tfbnw.net"</span>
+fbPassword5 = <span class="str">"test123"</span>
+<span class="cmt">##################      Test Suites      ###################</span>
+<span class="kw">class</span> SetupTesting(unittest.TestCase):
+    <span class="kw">def</span> test1_LoadChrome(self):
+        setupChrome()
+
+    <span class="kw">def</span> test2_FacebookLogin(self):
+        loginFacebook(fbUser3,fbPassword3)
+
+    <span class="kw">def</span> test3_LoadSlingo(self):
+        checkLoadSlingo()
+
+<span class="kw">class</span> FirstTimeUserTests(unittest.TestCase):
+    <span class="kw">def</span> test0_ResetPlayerProgress(self):
+        resetPlayerProgress()
+
+    <span class="kw">def</span> test1_TutorialLevel1(self):
+        checkFTULevel1()
+
+    <span class="kw">def</span> test2_TutorialLevel2(self):
+        checkFTULevel2()
+
+    <span class="kw">def</span> test3_TutorialLevel3(self):
+        checkFTULevel3()
+
+    <span class="kw">def</span> test4_TutorialLevel4(self):
+        checkFTULevel4()
+
+
+<span class="kw">class</span> SpinnerPurchaseTests(unittest.TestCase):
+    <span class="kw">def</span> test1_Buy15Spinners(self):
+        checkBuySpinners15()
+
+    <span class="kw">def</span> test2_Buy30Spinners(self):
+        checkBuySpinners30()
+
+    <span class="kw">def</span> test3_Buy65Spinners(self):
+        checkBuySpinners65()
+
+    <span class="kw">def</span> test4_Buy150Spinners(self):
+        checkBuySpinners150()
+
+    <span class="kw">def</span> test5_Buy400Spinners(self):
+        checkBuySpinners400()
+
+<span class="kw">class</span> CoinPurchaseTests(unittest.TestCase):
+    <span class="kw">def</span> test1_Buy5000Coins(self):
+        checkBuyCoins5000()
+
+    <span class="kw">def</span> test2_Buy12000Coins(self):
+        checkBuyCoins12000()
+
+    <span class="kw">def</span> test3_Buy25000Coins(self):
+        checkBuyCoins25000()
+
+    <span class="kw">def</span> test4_Buy40000Coins(self):
+        checkBuyCoins40000()
+
+<span class="kw">class</span> HeartPurchaseTests(unittest.TestCase):
+    <span class="kw">def</span> test1_RefillHeartsMap(self):
+        checkRefillHearts()
+
+    <span class="kw">def</span> test2_RefillHeartsLevel(self):
+        checkRefillHeartsLevel()
+
+<span class="kw">class</span> PowerUpPurchaseTests(unittest.TestCase):
+    <span class="kw">def</span> test1_PUPStorePurchase(self):
+        checkPUPStore()
+
+<span class="kw">class</span> LevelProgression(unittest.TestCase):
+    <span class="kw">def</span> test1_PlayLevels5to6(self):
+        setSlingoReg()
+        playLevelRange(<span class="dig">5</span>,<span class="dig">11</span>, spend = True)
+
+<span class="kw">def</span> main():
+    dir = <span class="str">"/Volumes/UserShares/msansregret/HTMLTestRunner_iMac-01"</span>
+    <span class="cmt">#recipients = ['msansregret@gamehouse.com', 'munruh@gamehouse.com', 'dustinv@blastworksinc.com']</span>
+    recipients = [<span class="str">'msansregret@gamehouse.com'</span>]
+    filename = <span class="str">'test.html'</span>
+    filepath = os.path.join(dir, filename)
+
+    <span class="cmt">#HTMLTestReport sets up the HTML format report file.</span>
+    <span class="cmt">#suite = unittest.TestLoader().loadTestsFromTestCase(LevelProgression) </span>
+    suite = unittest.TestLoader().loadTestsFromTestCase(SetupTesting) <span class="cmt">#First test to be ran</span>
+    <span class="cmt">#suite.addTests(unittest.TestLoader().loadTestsFromTestCase(FirstTimeUserTests))</span>
+    <span class="cmt">#suite.addTests(unittest.TestLoader().loadTestsFromTestCase(SpinnerPurchaseTests))</span>
+    <span class="cmt">#suite.addTests(unittest.TestLoader().loadTestsFromTestCase(CoinPurchaseTests))</span>
+    <span class="cmt">#suite.addTests(unittest.TestLoader().loadTestsFromTestCase(HeartPurchaseTests)) #Additional tests can be added with this pattern</span>
+    <span class="cmt">#suite.addTests(unittest.TestLoader().loadTestsFromTestCase(PowerUpPurchaseTests))</span>
+    suite.addTests(unittest.TestLoader().loadTestsFromTestCase(LevelProgression))
+
+    fp = open(os.path.join(dir, <span class="str">"test.html"</span>), <span class="str">"w"</span>)
+    runner = HTMLTestRunner.HTMLTestRunner(stream = fp, verbosity=<span class="dig">2</span>, dirTestScreenshots = dir)
+    runner.run(suite)
+    fp.close()
+
+    fp = open(filepath,<span class="str">'r'</span>)
+    body = buildEmailBody(<span class="str">''</span>.join(fp))
+    fp.close()
+    <span class="cmt">#email report details</span>
+    <span class="cmt">#f = open(r"C:/Sikuli/HTMLTestRunner/test.html", 'r') #Windows Path</span>
+    <span class="cmt">#f = open(os.path.join(dir, "test.html"), 'r') #Mac path</span>
+    <span class="cmt">#sendMail('noreply@gamehouse.com', recipients, 'Testbot Report', f)</span>
+
+    sendMailAttach(<span class="str">'noreply@gamehouse.com'</span>, recipients, <span class="str">'Testbot Daily Report: Canvas'</span>, body, filename, filepath)
+    <span class="cmt">#f.close()</span>
+
+<span class="kw">def</span> buildEmailBody(report):
+        result = re.findall(<span class="str">r'&lt;/strong&gt;(.*)&lt;/p&gt;'</span>,report)
+
+        body = <span class="str">'TEST RESULT SUMMARY'</span> + <span class="str">'\r'</span> + <span class="str">'\r'</span> + <span class="str">'Start Time:'</span> + result[<span class="dig">0</span>] + <span class="str">'\r'</span> + <span class="str">'Duration:'</span> + result[<span class="dig">1</span>] + <span class="str">'\r'</span> + <span class="str">'Status:'</span> + result[<span class="dig">2</span>] + <span class="str">'\r'</span> + <span class="str">'\r'</span> + <span class="str">'See attachment for full test report'</span>
+        <span class="kw">return</span> body
+
+<span class="kw">if</span> __name__ == <span class="str">'__main__'</span>:
+    main()
+</pre>
+</body>
+</html>

@@ -1,0 +1,498 @@
+
+<html>
+   <head>
+      <style type="text/css">
+         .sikuli-code {
+            font-size: 20px;
+            font-family: "Osaka-mono", Monospace;
+            line-height: 1.5em;
+            display:table-cell;
+            white-space: pre-wrap;       /* css-3 */
+            white-space: -moz-pre-wrap !important;  /* Mozilla, since 1999 */
+            white-space: -pre-wrap;      /* Opera 4-6 */
+            white-space: -o-pre-wrap;    /* Opera 7 */
+            word-wrap: break-word;       /* Internet Explorer 5.5+ */
+            width: 99%;   /* remove horizontal scroll-bar when viewing in IE7 */
+         }
+         .sikuli-code img {
+            vertical-align: middle;
+            margin: 2px;
+            border: 1px solid #ccc;
+            padding: 2px;
+            -moz-border-radius: 5px;
+            -webkit-border-radius: 5px;
+            -moz-box-shadow: 1px 1px 1px gray;
+            -webkit-box-shadow: 1px 1px 2px gray;
+         }
+         .kw {
+            color: blue;
+         }
+         .skw {
+            color: rgb(63, 127, 127);
+         }
+
+         .str {
+            color: rgb(128, 0, 0);
+         }
+
+         .dig {
+            color: rgb(128, 64, 0);
+         }
+
+         .cmt {
+            color: rgb(200, 0, 200);
+         }
+
+         h2 {
+            display: inline;
+            font-weight: normal;
+         }
+
+         .info {
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 5px;
+            margin-bottom: 20px;
+            display: none;
+         }
+
+         a {
+            color: #9D2900;
+         }
+
+         body {
+            font-family: "Trebuchet MS", Arial, Sans-Serif;
+         }
+
+      </style>
+   </head>
+<body>
+<div class="info">
+<h2>maps.sikuli</h2> <a href="maps.zip">(Download this script)</a>
+</div>
+<pre class="sikuli-code">
+<span class="kw">from</span> sikuli <span class="kw">import</span> *
+<span class="kw">import</span> time
+<span class="kw">import</span> dialogs
+<span class="kw">import</span> levels
+<span class="kw">import</span> setup
+<span class="kw">from</span> cord <span class="kw">import</span> Cord
+<span class="kw">global</span> reg
+reg = SCREEN
+
+<span class="kw">global</span> matrix_size
+matrix_size = <span class="str">'5x5'</span>
+<span class="kw">global</span> level_type
+level_type = <span class="str">'classic'</span>
+gate_found = False
+map = None
+
+
+pupDict = {
+    <span class="str">"extraspins2"</span>: <img src="ExtraSpins2.png" />,
+    <span class="str">"extraspins4"</span>: <img src="PUPIconExtraSpins.png" />,
+    <span class="str">"firecrate"</span>: <img src="PUPIconDailyFireCrate.png" />,
+    <span class="str">"premiumvision"</span>: Pattern(<img src="PUPIconPremiumVision.png" />).similar(<span class="dig">0.50</span>),
+    <span class="str">"autodaubber"</span>: Pattern(<img src="PUPIconAutoDaubber.png" />).similar(<span class="dig">0.50</span>)
+}
+
+map_dict = {
+    <span class="dig">1</span>:{<span class="dig">1</span>:<img src="area_identifier_1.png" />, <span class="dig">2</span>:<img src="area_identifier_2.png" />, <span class="dig">3</span>:<img src="area_identifier_3.png" />, <span class="dig">4</span>:<img src="area_identifier_4.png" />, <span class="dig">5</span>:<img src="area_identifier_5.png" />, <span class="dig">6</span>:<img src="area_identifier_6.png" />, <span class="dig">7</span>:<img src="area_identifier_7.png" />},
+    <span class="dig">2</span>:{<span class="dig">1</span>:<img src="area_identifier_2_1.png" />, <span class="dig">2</span>:<img src="area_identifier_2_2.png" />, <span class="dig">3</span>:<img src="area_identiifer_2_3.png" />, <span class="dig">4</span>:<img src="area_identifier_2_4.png" />, <span class="dig">5</span>:<img src="area_identifier_2_5.png" />, <span class="dig">6</span>:<img src="area_identifier_2_6.png" />, <span class="dig">7</span>:<img src="area_identifier_2_7.png" />},
+    <span class="dig">7</span>:{<span class="dig">1</span>:Pattern(<img src="area_ident_7_1.png" />).similar(<span class="dig">0.80</span>), <span class="dig">2</span>:<img src="area_ident_7_2.png" />, <span class="dig">3</span>:<img src="area_ident_7_3.png" />, <span class="dig">4</span>:Pattern(<img src="area_ident_7_4.png" />).similar(<span class="dig">0.80</span>), <span class="dig">5</span>:<img src="area_ident_7_5.png" />, <span class="dig">6</span>:<img src="area_ident_7_6.png" />, <span class="dig">7</span>:<img src="area_ident_7_7.png" />, <span class="dig">8</span>:<img src="area_ident_7_8.png" />}
+    }
+
+<span class="kw">def</span> scroll_map_up():
+    <span class="str">"""Scolls the map up by one area"""</span>
+    <span class="skw">dragDrop</span>(reg.getTopRight().offset(-<span class="dig">3</span>, <span class="dig">115</span>), reg.getBottomRight().offset(-<span class="dig">3</span>, -<span class="dig">115</span>))
+
+<span class="kw">def</span> scroll_map_down():
+    <span class="str">"""Scrolls the map down by one area."""</span>
+    <span class="skw">dragDrop</span>(reg.getBottomRight().offset(-<span class="dig">3</span>, -<span class="dig">115</span>), reg.getTopRight().offset(-<span class="dig">3</span>, <span class="dig">115</span>))
+
+<span class="kw">def</span> reset_map_position():
+    <span class="str">"""Try to see the map, then scroll it down to reset its position.
+
+    Sometimes interstitial ad appears; this function wait for it to complete.
+    If the whole operation takes more than 60 seconds, halt.
+
+    Logics seem to be not very clear and concise; can use some optimization.
+
+    """</span>
+    timeout = time.time() + <span class="dig">60</span>
+
+    <span class="kw">while</span> True:
+        <span class="kw">if</span> reg.exists(<img src="AreaOneVillage.png" />) <span class="kw">or</span> \
+           reg.exists(<img src="AreaOneVillageSnow.png" />):
+            <span class="kw">break</span>
+        <span class="kw">elif</span> <span class="kw">not</span> reg.exists(Pattern(<img src="MuteButtons.png" />).similar(<span class="dig">0.65</span>)):
+            <span class="kw">assert</span> False, <span class="str">"Slingo went missing during action"</span>
+            <span class="kw">break</span>
+        <span class="kw">elif</span> time.time() &gt; timeout:
+            <span class="kw">print</span>(<span class="str">'Action took longer than 60sec'</span>)
+            <span class="kw">assert</span> False, <span class="str">"Not able to reset map position before timeout"</span>
+            <span class="kw">break</span>
+
+        scroll_map_down()
+
+    scroll_map_down()
+    <span class="kw">assert</span> reg.exists(<img src="AreaOneVillage.png" />) <span class="kw">or</span> \
+        reg.exists(<img src="AreaOneVillageSnow.png" />)
+
+<span class="kw">def</span> _detect_map():
+    <span class="str">""" Sets up the global map variable which tells other
+       functions what map area we are currently in. Important
+       to the code that switches maps.
+       """</span>
+    <span class="kw">global</span> map
+    <span class="kw">for</span> map_key, map_value <span class="kw">in</span> map_dict.items():
+        <span class="kw">for</span> area_key, area_value <span class="kw">in</span> map_value.items():
+            <span class="kw">if</span> reg.exists(area_value, <span class="dig">0</span>):
+                map = map_key
+                <span class="kw">return</span>
+
+    <span class="kw">assert</span> False, <span class="str">"Map area could not be detected"</span>
+
+<span class="kw">def</span> select_map(new_map):
+    <span class="kw">if</span> map <span class="kw">is</span> None:
+        _detect_map()
+
+    <span class="kw">while</span> <span class="kw">not</span> new_map == map:
+        timeout = time.time() + <span class="dig">60</span>
+        <span class="kw">if</span> new_map &gt; map:
+            <span class="kw">while</span> <span class="kw">not</span> reg.exists(<img src="map_change_up_button.png" />):
+                scroll_map_up()
+                <span class="kw">if</span> time.time() &gt; timeout:
+                    <span class="kw">assert</span> False, <span class="str">'Action took longer than 60sec'</span>
+                    <span class="kw">break</span>
+        <span class="kw">elif</span> new_map &lt; map:
+            <span class="kw">while</span> <span class="kw">not</span> reg.exists(<img src="map_change_down_button.png" />):
+                scroll_map_down()
+                <span class="kw">if</span> time.time() &gt; timeout:
+                    <span class="kw">assert</span> False, <span class="str">'Action took longer than 60sec'</span>
+                    <span class="kw">break</span>
+
+        <span class="skw">click</span>(reg.getLastMatch())
+        reg.waitVanish(Pattern(<img src="MuteButtons.png" />).similar(<span class="dig">0.65</span>),<span class="dig">10</span>)
+        <span class="kw">assert</span> reg.exists(Pattern(<img src="MuteButtons.png" />).similar(<span class="dig">0.65</span>),<span class="dig">30</span>)
+        dialogs.clear_dialogs()
+        _detect_map()
+
+
+<span class="kw">def</span> set_map_area(area):
+    <span class="cmt">### Seeks to find the area desired and then positions </span>
+    <span class="cmt">### the map so that area is in the middle.</span>
+
+    timeout = time.time() + <span class="dig">60</span>
+    map_position = None
+    <span class="kw">while</span> <span class="kw">not</span> reg.exists(map_dict[map][area]):
+        <span class="cmt">#While our area is not on screen.</span>
+
+        <span class="kw">if</span> map_position <span class="kw">is</span> None:
+            <span class="cmt">#If we haven't found out where on the map we are yet.</span>
+            <span class="cmt">#We're going to iterate through all the items until we find one.</span>
+            <span class="kw">for</span> key,value <span class="kw">in</span> map_dict[map].items():
+                <span class="kw">if</span> reg.exists(value, <span class="dig">0</span>):
+                    map_position = key
+                    <span class="kw">break</span>
+
+        <span class="cmt">#If we know where we are now go up or down or if not just down.</span>
+        <span class="kw">if</span> map_position &lt; area:
+            scroll_map_up()
+        <span class="kw">elif</span> map_position &gt; area:
+            scroll_map_down()
+        <span class="kw">else</span>:
+            <span class="kw">print</span> <span class="str">"Unkown map position"</span>
+            scroll_map_down()
+
+        <span class="kw">if</span> time.time() &gt; timeout:
+            <span class="kw">print</span> <span class="str">'Action took longer than 60sec'</span>
+            <span class="kw">assert</span> False
+            <span class="kw">break</span>
+
+    <span class="cmt">### Now that the desired area is on screen we move the map up and down until</span>
+    <span class="cmt">### we have the area identifier lined up to within 5pix of the middle of the reg</span>
+    delta_of_area_from_center = _setup_area_delta(map_dict[map][area])
+
+    timeout = time.time() + <span class="dig">60</span>
+    <span class="kw">while</span> abs(delta_of_area_from_center) &gt; <span class="dig">5</span>:
+        <span class="skw">dragDrop</span>(reg.getTopRight().offset(-<span class="dig">15</span>, reg.h / <span class="dig">2</span>), reg.getTopRight().offset(-<span class="dig">15</span>, (reg.h / <span class="dig">2</span>) + delta_of_area_from_center))
+        <span class="skw">wait</span>(<span class="dig">0.5</span>)
+        delta_of_area_from_center = _setup_area_delta(map_dict[map][area])
+
+        <span class="kw">if</span> time.time() &gt; timeout:
+            <span class="kw">print</span> <span class="str">'Action took longer than 60sec'</span>
+            <span class="kw">assert</span> False
+            <span class="kw">break</span>
+
+<span class="kw">def</span> _setup_area_delta(area):
+    dead_zone_comp = <span class="dig">0</span>
+
+    delta = reg.getCenter().y - reg.<span class="skw">find</span>(area).getCenter().y
+    <span class="kw">if</span> delta &gt; <span class="dig">0</span>:
+        delta += dead_zone_comp
+    <span class="kw">elif</span> delta &lt; <span class="dig">0</span>:
+        delta -= dead_zone_comp
+
+    <span class="kw">return</span> delta
+
+<span class="kw">def</span> select_level(lvl):
+    <span class="str">"""Clicks on a specified level node and the sets level parameters."""</span>
+
+    <span class="kw">if</span> lvl &lt;= <span class="dig">100</span>:
+        select_map(<span class="dig">1</span>)
+        <span class="kw">if</span> lvl &lt;= <span class="dig">10</span>:
+            set_map_area(<span class="dig">1</span>)
+        <span class="kw">elif</span> lvl &lt;= <span class="dig">25</span>:
+            set_map_area(<span class="dig">2</span>)
+        <span class="kw">elif</span> lvl &lt;= <span class="dig">40</span>:
+            set_map_area(<span class="dig">3</span>)
+        <span class="kw">elif</span> lvl &lt;= <span class="dig">55</span>:
+            set_map_area(<span class="dig">4</span>)
+        <span class="kw">elif</span> lvl &lt;= <span class="dig">70</span>:
+            set_map_area(<span class="dig">5</span>)
+        <span class="kw">elif</span> lvl &lt;= <span class="dig">85</span>:
+            set_map_area(<span class="dig">6</span>)
+        <span class="kw">elif</span> lvl &lt;= <span class="dig">100</span>:
+            set_map_area(<span class="dig">7</span>)
+
+    <span class="kw">elif</span> lvl &lt;= <span class="dig">200</span>:
+        select_map(<span class="dig">2</span>)
+        <span class="kw">if</span> lvl &lt;= <span class="dig">115</span>:
+            set_map_area(<span class="dig">1</span>)
+        <span class="kw">elif</span> lvl &lt;= <span class="dig">130</span>:
+            set_map_area(<span class="dig">2</span>)
+        <span class="kw">elif</span> lvl &lt;= <span class="dig">145</span>:
+            set_map_area(<span class="dig">3</span>)
+        <span class="kw">elif</span> lvl &lt;= <span class="dig">160</span>:
+            set_map_area(<span class="dig">4</span>)
+        <span class="kw">elif</span> lvl &lt;= <span class="dig">175</span>:
+            set_map_area(<span class="dig">5</span>)
+        <span class="kw">elif</span> lvl &lt;= <span class="dig">190</span>:
+            set_map_area(<span class="dig">6</span>)
+        <span class="kw">elif</span> lvl &lt;= <span class="dig">200</span>:
+            set_map_area(<span class="dig">7</span>)
+
+    <span class="kw">elif</span> lvl &lt;= <span class="dig">300</span>:
+        select_map(<span class="dig">3</span>)
+
+    <span class="kw">elif</span> lvl &lt;= <span class="dig">400</span>:
+        select_map(<span class="dig">4</span>)
+
+    <span class="kw">elif</span> lvl &lt;= <span class="dig">500</span>:
+        select_map(<span class="dig">5</span>)
+
+    <span class="kw">elif</span> lvl &lt;= <span class="dig">600</span>:
+        select_map(<span class="dig">6</span>)
+
+    <span class="kw">elif</span> lvl &lt;= <span class="dig">700</span>:
+        select_map(<span class="dig">7</span>)
+        <span class="kw">if</span> lvl &lt;= <span class="dig">611</span>:
+            set_map_area(<span class="dig">1</span>)
+        <span class="kw">elif</span> lvl &lt;= <span class="dig">625</span>:
+            set_map_area(<span class="dig">2</span>)
+        <span class="kw">elif</span> lvl &lt;= <span class="dig">636</span>:
+            set_map_area(<span class="dig">3</span>)
+        <span class="kw">elif</span> lvl &lt;= <span class="dig">650</span>:
+            set_map_area(<span class="dig">4</span>)
+        <span class="kw">elif</span> lvl &lt;= <span class="dig">662</span>:
+            set_map_area(<span class="dig">5</span>)
+        <span class="kw">elif</span> lvl &lt;= <span class="dig">675</span>:
+            set_map_area(<span class="dig">6</span>)
+        <span class="kw">elif</span> lvl &lt;= <span class="dig">686</span>:
+            set_map_area(<span class="dig">7</span>)
+        <span class="kw">elif</span> lvl &lt;= <span class="dig">700</span>:
+            set_map_area(<span class="dig">8</span>)
+
+
+    listAdjLvl = lvl - <span class="dig">1</span>
+
+    hover(reg.getTopLeft().offset(
+        Cord.lvlList[listAdjLvl].x, Cord.lvlList[listAdjLvl].y))
+    reg.mouseDown(Button.LEFT)
+    reg.mouseUp(Button.LEFT)
+    dialogs.park_cursor()
+    <span class="kw">assert</span> reg.exists(<img src="PUPStorePlayButton.png" />, <span class="dig">3</span>)
+
+<span class="kw">def</span> _handle_ringo_gate_tut():
+    <span class="str">"""If the Ringo gate requirement FTUE is ocrruring,
+    this handle it."""</span>
+    <span class="kw">if</span> reg.exists(<img src="RingoGateUnlockTut.png" />):
+        <span class="kw">assert</span> reg.exists(<img src="TutGotIt.png" />)
+        <span class="skw">click</span>(reg.getLastMatch())
+
+<span class="kw">def</span> handle_daily_deal():
+    daily_deal_observe = reg
+    daily_deal_observe.onAppear(<img src="DailyDealBanner.png" />,daily_deal_dismiss)
+    daily_deal_observe.observe(<span class="dig">10</span>,True)
+
+<span class="kw">def</span> daily_deal_dismiss(event):
+    <span class="kw">print</span> <span class="str">"Daily Deal found. Dismissing..."</span>
+    dialogs.close_dialog()
+
+<span class="kw">def</span> _set_level_type():
+    <span class="str">"""Observes the presence of the Cascade mode icon on the signup dialogue,
+    and sets the level type variable."""</span>
+    <span class="kw">global</span> level_type
+
+    <span class="kw">if</span> reg.exists(Pattern(<img src="SignUpDialogCascadeIcon.png" />).similar(<span class="dig">0.95</span>)):
+        level_type = <span class="str">'cascade'</span>
+    <span class="kw">else</span>:
+        level_type = <span class="str">'classic'</span>
+
+
+<span class="kw">def</span> _set_matrix_size():
+    <span class="str">"""Detects level signup icons and then sets
+       global variable matrix_size. That variable is
+       depended upon by _daub_matrix"""</span>
+    <span class="kw">global</span> matrix_size
+    <span class="kw">if</span> reg.exists(Pattern(<img src="SignUpDialog5x5.png" />).similar(<span class="dig">0.95</span>)):
+        matrix_size = <span class="str">'5x5'</span>
+        <span class="kw">print</span>(<span class="str">'Level is 5x5'</span>)
+    <span class="kw">elif</span> reg.exists(Pattern(<img src="SignUpDialog7x7.png" />).similar(<span class="dig">0.95</span>)):
+        matrix_size = <span class="str">'7x7'</span>
+        <span class="kw">print</span>(<span class="str">'Level is 7x7'</span>)
+
+<span class="kw">def</span> _set_signup(pup=<span class="str">'None'</span>):
+    <span class="str">"""Equip one specific power up; if insucfficient currenty, buy them here.
+
+    Call this during a script that goes through the signup dialogue.
+
+    """</span>
+    _handle_PUP_unlocks_signup()
+    <span class="kw">if</span> pup != <span class="str">'None'</span>:
+        reg.<span class="skw">click</span>(pupDict[pup])
+        <span class="kw">if</span> reg.exists(<img src="PUPStoreBuyButton.png" />, <span class="dig">2</span>):
+            reg.<span class="skw">click</span>(reg.getLastMatch())
+            <span class="skw">wait</span>(<span class="dig">1</span>)
+            <span class="kw">if</span> reg.exists(<img src="AddCoins.png" />):
+                <span class="kw">assert</span> reg.exists(<img src="CoinsStore8Spinner.png" />)
+                <span class="skw">click</span>(reg.getLastMatch())
+
+            dialogs.handle_spinner_prompt(<span class="dig">1</span>)
+
+        <span class="kw">assert</span> reg.exists(<img src="PUPequippedCheck.png" />)
+        <span class="skw">wait</span>(<span class="dig">1</span>)
+
+<span class="kw">def</span> _handle_PUP_unlocks_signup():
+    <span class="str">"""If a power up unlocked moment is happening on the sign up screen,
+    this handles it, by checking which one it is, and then equipping it.
+    """</span>
+    <span class="kw">if</span> reg.exists(<img src="PowerUpUnlockedBannerSignUp.png" />, <span class="dig">2</span>):
+        <span class="kw">print</span>(<span class="str">"PUP Unlock moment found"</span>)
+        unlockBanner = reg.getLastMatch()
+        pupSelect = reg.<span class="skw">find</span>(<img src="SignUpSelectPUPsBanner.png" />)
+        <span class="kw">for</span> item <span class="kw">in</span> pupDict:
+            <span class="kw">print</span>(<span class="str">"Checking for PUP..."</span>)
+            <span class="kw">if</span> unlockBanner.below(<span class="dig">300</span>).exists(pupDict[item]):
+                <span class="kw">print</span>(<span class="str">"Found PUP"</span>)
+                pupSelect.below().<span class="skw">click</span>(pupDict[item])
+                <span class="kw">break</span>
+
+    <span class="skw">wait</span>(<span class="dig">2</span>)
+
+<span class="kw">def</span> handle_gate_unlock():
+    <span class="str">"""Uses the signpost on gates to check if the gate can be interacted
+    if it can it proceeds to try and unlock the gate.
+    """</span>
+    <span class="kw">global</span> gate_found
+    <span class="kw">if</span> reg.exists(Pattern(<img src="gate_signpost.png" />).targetOffset(<span class="dig">95</span>,<span class="dig">57</span>)) <span class="kw">or</span> reg.exists(<img src="gate_01.png" />):
+        <span class="kw">print</span>(<span class="str">"Gate post found. Checking for gate unlock"</span>)
+        sign_list = [Pattern(<img src="gate_signpost.png" />).targetOffset(<span class="dig">91</span>,<span class="dig">57</span>), Pattern(<img src="gate_signpost_left.png" />).targetOffset(-<span class="dig">130</span>,<span class="dig">69</span>), <img src="gate_01.png" />]
+        reg_skip_observe = Region(reg)
+        reg_skip_observe.onAppear(<img src="NISSkipButton.png" />, event_skip)
+        reg_skip_observe.observe(<span class="dig">30</span>, True)
+
+        gate_found = False
+        <span class="kw">for</span> item <span class="kw">in</span> sign_list:
+            <span class="kw">if</span> reg.exists(item):
+                <span class="skw">click</span>(reg.getLastMatch())
+
+                <span class="kw">if</span> waitVanish(item, <span class="dig">3</span>):
+                    <span class="kw">print</span>(<span class="str">"Gate found unlocking..."</span>)
+                    <span class="kw">if</span> reg.exists(<img src="gate_dialog_unlocknow_button.png" />):
+                        gate_found = True
+                        <span class="skw">click</span>(reg.getLastMatch())
+                        <span class="kw">break</span>
+                    <span class="kw">elif</span> reg.exists(<img src="GateDialogBanner.png" />):
+                        gate_found = True
+                        <span class="kw">if</span> reg.exists(<img src="gate_dialog_buy_button.png" />):
+                            <span class="skw">click</span>(reg.getLastMatch())
+                            <span class="skw">wait</span>(<span class="dig">1</span>)
+                            dialogs.handle_spinner_prompt(<span class="dig">3</span>)
+                        <span class="kw">if</span> reg.exists(<img src="GateUnlockTutFreeButton.png" />, <span class="dig">8</span>):
+                            <span class="skw">click</span>(reg.getLastMatch())
+                        <span class="kw">break</span>
+                    <span class="kw">else</span>:
+                        dialogs.clear_dialogs()
+
+        <span class="kw">if</span> gate_found:
+            <span class="kw">if</span> <span class="kw">not</span> reg.exists(<img src="AreaUnlockDialogBanner.png" />, <span class="dig">30</span>):
+                <span class="kw">print</span>(<span class="str">"Gate unlock confirmation missing"</span>)
+                dialogs.clear_dialogs()
+        <span class="kw">else</span>:
+            <span class="kw">print</span>(<span class="str">"Gate dialog not found"</span>)
+            dialogs.clear_dialogs()
+
+        reg_skip_observe.stopObserver()
+
+<span class="kw">def</span> event_skip(event):
+    <span class="kw">global</span> gate_found
+    gate_found = True
+    reg.<span class="skw">click</span>(event.pattern)
+
+
+<span class="kw">def</span> play_level_range(start, last, p_spend=False):
+    <span class="str">"""Loads and plays levels in a range specifed by
+    a starting and ending level."""</span>
+    reg_pup_unlock_observe = Region(reg)
+    reg_pup_unlock_observe.onAppear(<img src="PowerUpUnlockedBannerSignUp.png" />, event_handle_pup_unlocks)
+
+    adjLast = last + <span class="dig">1</span>
+    <span class="kw">for</span> i <span class="kw">in</span> range(start, adjLast):
+        win = False
+        <span class="kw">while</span> <span class="kw">not</span> win:
+            dialogs.clear_dialogs()
+            <span class="kw">if</span> reg.exists(Pattern(<img src="topbar_hearts_value_0.png" />).similar(<span class="dig">0.90</span>), <span class="dig">2</span>):
+                <span class="kw">print</span>(<span class="str">'Out of Hearts. Getting More...'</span>)
+                setup.refill_hearts()
+
+            <span class="kw">print</span>(<span class="str">'Playing level '</span> + str(i))
+            select_level(i)
+            reg_pup_unlock_observe.observe(FOREVER, True)
+
+            _set_level_type()
+            _set_matrix_size()
+
+            <span class="cmt"># This is where we take actions based on level type as a standard </span>
+            <span class="cmt"># method of increasing our chances of beating the level.</span>
+            <span class="kw">if</span> level_type == <span class="str">'classic'</span> <span class="kw">and</span> p_spend <span class="kw">is</span> True:
+                _set_signup(<span class="str">'extraspins4'</span>)
+            <span class="kw">else</span>:
+                _set_signup(<span class="str">'None'</span>)
+
+            reg_pup_unlock_observe.stopObserver()
+            levels.verify_level_load()
+            levels.handle_pup_unlock()
+            levels.new_play_level(m_size=matrix_size, l_spend=p_spend)
+            dialogs.handle_ad_interstitial()
+
+            <span class="kw">if</span> reg.exists(<img src="SignOutDialogWin.png" />, <span class="dig">3</span>):
+                <span class="kw">print</span>(<span class="str">'Beat level '</span> + str(i))
+                win = True
+                dialogs.clear_dialogs()
+                dialogs.handle_ad_interstitial()
+                _handle_ringo_gate_tut()
+                handle_gate_unlock()
+
+            <span class="kw">elif</span> reg.exists(<img src="SignOutDialogLose.png" />, <span class="dig">3</span>):
+                <span class="kw">print</span>(<span class="str">'Lost level '</span> + str(i) + <span class="str">'. Retrying...'</span>)
+                win = False
+
+        dialogs.clear_dialogs()
+
+<span class="kw">def</span> event_handle_pup_unlocks(event):
+    _handle_PUP_unlocks_signup()
+    event.region.stopObserver()
+</pre>
+</body>
+</html>

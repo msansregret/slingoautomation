@@ -1,0 +1,152 @@
+
+<html>
+   <head>
+      <style type="text/css">
+         .sikuli-code {
+            font-size: 20px;
+            font-family: "Osaka-mono", Monospace;
+            line-height: 1.5em;
+            display:table-cell;
+            white-space: pre-wrap;       /* css-3 */
+            white-space: -moz-pre-wrap !important;  /* Mozilla, since 1999 */
+            white-space: -pre-wrap;      /* Opera 4-6 */
+            white-space: -o-pre-wrap;    /* Opera 7 */
+            word-wrap: break-word;       /* Internet Explorer 5.5+ */
+            width: 99%;   /* remove horizontal scroll-bar when viewing in IE7 */
+         }
+         .sikuli-code img {
+            vertical-align: middle;
+            margin: 2px;
+            border: 1px solid #ccc;
+            padding: 2px;
+            -moz-border-radius: 5px;
+            -webkit-border-radius: 5px;
+            -moz-box-shadow: 1px 1px 1px gray;
+            -webkit-box-shadow: 1px 1px 2px gray;
+         }
+         .kw {
+            color: blue;
+         }
+         .skw {
+            color: rgb(63, 127, 127);
+         }
+
+         .str {
+            color: rgb(128, 0, 0);
+         }
+
+         .dig {
+            color: rgb(128, 64, 0);
+         }
+
+         .cmt {
+            color: rgb(200, 0, 200);
+         }
+
+         h2 {
+            display: inline;
+            font-weight: normal;
+         }
+
+         .info {
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 5px;
+            margin-bottom: 20px;
+            display: none;
+         }
+
+         a {
+            color: #9D2900;
+         }
+
+         body {
+            font-family: "Trebuchet MS", Arial, Sans-Serif;
+         }
+
+      </style>
+   </head>
+<body>
+<div class="info">
+<h2>emailer.sikuli</h2> <a href="emailer.zip">(Download this script)</a>
+</div>
+<pre class="sikuli-code">
+<span class="kw">import</span> smtplib
+<span class="kw">import</span> os
+<span class="kw">from</span> os.path <span class="kw">import</span> basename
+<span class="kw">from</span> email.mime.application <span class="kw">import</span> MIMEApplication
+<span class="kw">from</span> email.mime.multipart <span class="kw">import</span> MIMEMultipart
+<span class="kw">from</span> email.mime.text <span class="kw">import</span> MIMEText
+<span class="kw">from</span> email.utils <span class="kw">import</span> COMMASPACE, formatdate
+<span class="kw">from</span> email.MIMEBase <span class="kw">import</span> MIMEBase
+<span class="kw">from</span> email <span class="kw">import</span> Encoders
+
+mailer = None
+
+<span class="kw">def</span> sendMail(send_from, send_to, subject, text):
+    server=<span class="str">'mail.bstage.ca'</span>
+
+    msg = MIMEMultipart(<span class="str">'alternative'</span>)
+    msg[<span class="str">'From'</span>] = send_from
+    msg[<span class="str">'To'</span>] = <span class="str">', '</span>.join(send_to)
+    msg[<span class="str">'Date'</span>] = formatdate(localtime=True)
+    msg[<span class="str">'Subject'</span>] = subject
+    <span class="cmt">#msg.preamble = subject</span>
+    body = <span class="str">''</span>.join(text)
+
+    msg.attach(MIMEText(<span class="str">'Plain Text version not supported'</span>, <span class="str">'plain'</span>))
+    msg.attach(MIMEText(body, <span class="str">'html'</span>))
+
+    <span class="cmt">##### File Attachement code commented out until needing to send an attachment</span>
+    <span class="cmt">#part = MIMEBase('application', "octet-stream")</span>
+    <span class="cmt">#part.set_payload(open(file, "rb").read())</span>
+    <span class="cmt">#Encoders.encode_base64(part)</span>
+
+    <span class="cmt">#part.add_header('Content-Disposition', 'attachment; filename="report.csv')</span>
+
+    <span class="cmt">#msg.attach(part)</span>
+
+    mailer = smtplib.SMTP(server)
+    mailer.sendmail(send_from, send_to, msg.as_string())
+    mailer.quit()
+
+<span class="kw">def</span> sendMailAttach(send_from, send_to, subject, text, filename, filepath):
+    server=<span class="str">'mail.bstage.ca'</span>
+
+    msg = MIMEMultipart()
+    msg[<span class="str">'From'</span>] = send_from
+    msg[<span class="str">'To'</span>] = <span class="str">', '</span>.join(send_to)
+    msg[<span class="str">'Date'</span>] = formatdate(localtime=True)
+    msg[<span class="str">'Subject'</span>] = subject
+    <span class="cmt">#msg.preamble = subject</span>
+
+    body = <span class="str">''</span>.join(text)
+    msg.attach(MIMEText(body, <span class="str">'plain'</span>))
+
+    <span class="cmt">##### File Attachement code commented out until needing to send an attachment</span>
+    attachment = open(filepath, <span class="str">'rb'</span>)
+
+    part = MIMEBase(<span class="str">'application'</span>, <span class="str">"octet-stream"</span>)
+    part.set_payload((attachment).read())
+    Encoders.encode_base64(part)
+
+    part.add_header(<span class="str">'Content-Disposition'</span>, <span class="str">'attachment; filename= %s'</span> % filename)
+
+    msg.attach(part)
+
+    mailer = smtplib.SMTP(server)
+    mailer.sendmail(send_from, send_to, msg.as_string())
+    mailer.quit()
+
+<span class="kw">def</span> main():
+    <span class="cmt">#dir = "C:/Sikuli/HTMLTestRunner" #Windows path</span>
+    dir = <span class="str">"/Users/tporter/Development/Sikuli/HTMLTestRunner"</span> <span class="cmt">#MAC path</span>
+    f = open(<span class="str">r'/Users/tporter/Development/Sikuli/HTMLTestRunner/test.html'</span>, <span class="str">'r'</span>) <span class="cmt">#Mac path</span>
+    sendMail(<span class="str">'noreply@gamehouse.com'</span>, <span class="str">'msansregret@gamehouse.com'</span>, <span class="str">'Testbot Report'</span>, f)
+    f.close()
+
+
+<span class="kw">if</span> __name__ == <span class="str">'__main__'</span>:
+    main()
+</pre>
+</body>
+</html>

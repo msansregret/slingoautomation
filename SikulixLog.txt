@@ -1,0 +1,32 @@
+[log] App.open [8148:chrome.exe]
+[log] CLICK on L(2869,362)@S(1)[1920,0 1920x1080]
+[log] ( Ctrl+Shift )  TYPE "n"
+[log] ( Ctrl )  TYPE "l"
+[log]  TYPE "#ENTER."
+[log] ( Ctrl )  TYPE "0"
+[log] CLICK on L(3020,127)@S(1)[1920,0 1920x1080]
+[log]  TYPE "#TAB."
+[log]  TYPE "#ENTER."
+[log] highlight R[2355,128 755x645]@S(1)[1920,0 1920x1080] E:Y, T:3.0 for 1.0 secs
+[log] CLICK on L(2630,709)@S(1)[1920,0 1920x1080]
+[log] CLICK on L(2964,626)@S(1)[1920,0 1920x1080]
+[log] CLICK on L(2964,626)@S(1)[1920,0 1920x1080]
+[log] CLICK on L(2964,626)@S(1)[1920,0 1920x1080]
+[log] CLICK on L(2964,626)@S(1)[1920,0 1920x1080]
+[log] CLICK on L(2964,626)@S(1)[1920,0 1920x1080]
+[log] CLICK on L(2964,626)@S(1)[1920,0 1920x1080]
+[log] CLICK on L(2964,626)@S(1)[1920,0 1920x1080]
+[log] CLICK on L(2541,691)@S(1)[1920,0 1920x1080]
+[log] CLICK on L(2964,626)@S(1)[1920,0 1920x1080]
+[log] CLICK on L(2964,626)@S(1)[1920,0 1920x1080]
+[log] CLICK on L(2964,626)@S(1)[1920,0 1920x1080]
+[log] CLICK on L(2964,626)@S(1)[1920,0 1920x1080]
+[log] CLICK on L(2964,626)@S(1)[1920,0 1920x1080]
+[log] CLICK on L(2964,626)@S(1)[1920,0 1920x1080]
+[log] CLICK on L(2964,626)@S(1)[1920,0 1920x1080]
+[log] CLICK on L(2964,626)@S(1)[1920,0 1920x1080]
+[log] CLICK on L(2964,626)@S(1)[1920,0 1920x1080]
+[log] CLICK on L(2964,626)@S(1)[1920,0 1920x1080]
+[log] CLICK on L(3066,258)@S(1)[1920,0 1920x1080]
+[log] ( Ctrl )  TYPE "w"
+[log] ( Ctrl )  TYPE "w"

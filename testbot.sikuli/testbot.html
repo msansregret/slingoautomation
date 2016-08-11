@@ -1,0 +1,573 @@
+
+<html>
+   <head>
+      <style type="text/css">
+         .sikuli-code {
+            font-size: 20px;
+            font-family: "Osaka-mono", Monospace;
+            line-height: 1.5em;
+            display:table-cell;
+            white-space: pre-wrap;       /* css-3 */
+            white-space: -moz-pre-wrap !important;  /* Mozilla, since 1999 */
+            white-space: -pre-wrap;      /* Opera 4-6 */
+            white-space: -o-pre-wrap;    /* Opera 7 */
+            word-wrap: break-word;       /* Internet Explorer 5.5+ */
+            width: 99%;   /* remove horizontal scroll-bar when viewing in IE7 */
+         }
+         .sikuli-code img {
+            vertical-align: middle;
+            margin: 2px;
+            border: 1px solid #ccc;
+            padding: 2px;
+            -moz-border-radius: 5px;
+            -webkit-border-radius: 5px;
+            -moz-box-shadow: 1px 1px 1px gray;
+            -webkit-box-shadow: 1px 1px 2px gray;
+         }
+         .kw {
+            color: blue;
+         }
+         .skw {
+            color: rgb(63, 127, 127);
+         }
+
+         .str {
+            color: rgb(128, 0, 0);
+         }
+
+         .dig {
+            color: rgb(128, 64, 0);
+         }
+
+         .cmt {
+            color: rgb(200, 0, 200);
+         }
+
+         h2 {
+            display: inline;
+            font-weight: normal;
+         }
+
+         .info {
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 5px;
+            margin-bottom: 20px;
+            display: none;
+         }
+
+         a {
+            color: #9D2900;
+         }
+
+         body {
+            font-family: "Trebuchet MS", Arial, Sans-Serif;
+         }
+
+      </style>
+   </head>
+<body>
+<div class="info">
+<h2>testbot.sikuli</h2> <a href="testbot.zip">(Download this script)</a>
+</div>
+<pre class="sikuli-code">
+<span class="str">"""Slingo Adventure Test Bot, containing low level functions.
+
+Test suites rely on this framework to perform system setup
+and game play controlling.
+
+Sample functions:
+    setup_chrome()
+    close_chrome()
+
+Deprecated functions (such as setupChrome()) are all at the bottom of the file.
+
+"""</span>
+<span class="kw">from</span> sikuli <span class="kw">import</span> *
+<span class="kw">import</span> os
+<span class="kw">import</span> time
+<span class="kw">import</span> sys
+<span class="kw">import</span> re
+<span class="kw">import</span> inspect
+<span class="kw">import</span> shutil
+<span class="kw">import</span> setup
+<span class="kw">import</span> dialogs
+<span class="kw">import</span> maps
+<span class="kw">import</span> levels
+<span class="kw">import</span> CustomExceptions
+<span class="kw">from</span> create_json <span class="kw">import</span> *
+
+sys.path.insert(<span class="dig">0</span>, <span class="str">r"C:\Users\Charlie Guan\Code\sikuliScripts' \
+                '\sikuliTestBotV2.sikuli\sikuliTestBotV2.py"</span>)
+
+<span class="cmt"># Global Variables</span>
+<span class="kw">global</span> reg
+reg = Screen(<span class="dig">0</span>)
+<span class="kw">global</span> app_screen  <span class="cmt"># the monitor chrome is running on</span>
+app_screen = SCREEN
+
+fbUser1 = <span class="str">"automation_qfhrcjq_test@tfbnw.net"</span>
+fbPassword1 = <span class="str">"test123"</span>
+URLQA = <span class="str">r"https://apps.facebook.com/qa-one-slingo/"</span>
+
+<span class="kw">def</span> take_screenshot(filename=<span class="str">'moment_before_click.png'</span>):
+    <span class="str">"""Take a screenshot and save it in /adventure_canvas/screenshots folder."""</span>
+    screenshotsDir = <span class="str">"screenshots"</span>
+    img = <span class="skw">capture</span>(reg)
+    shutil.move(img, os.path.join(
+        screenshotsDir, filename))
+
+<span class="kw">def</span> setup_testing(os=<span class="str">"MAC"</span>,
+                  fb_username=fbUser1,
+                  fb_password=fbPassword1,
+                  envURL=URLQA):
+    <span class="str">"""Uses setup module to setup the test environment. Passes along variables
+       from testsuite."""</span>
+    reg = setup.setup_chrome(os,fb_username, fb_password, envURL)
+    dialogs.reg = maps.reg = setup.reg = levels.reg = reg
+
+<span class="kw">def</span> check_load_slingo():
+    <span class="kw">global</span> reg
+    reg = setup.check_load_slingo()
+    dialogs.reg = Region(reg)
+    maps.reg = Region(reg)
+    setup.reg = Region(reg)
+    levels.reg = Region(reg)
+
+<span class="kw">def</span> check_reset_progress():
+    setup.reset_player_progress()
+
+<span class="kw">def</span> check_spinner_store(spins):
+    <span class="str">"""Check if spinners can be bought, and if the total is expected."""</span>
+    costDict = {<span class="dig">20</span>:Pattern(<img src="spinner_store_price_399-1.png" />).similar(<span class="dig">0.95</span>).targetOffset(<span class="dig">89</span>,<span class="dig">2</span>),<span class="dig">30</span>:Pattern(<img src="spinner_store_price_499-1.png" />).similar(<span class="dig">0.95</span>).targetOffset(<span class="dig">89</span>,<span class="dig">2</span>),<span class="dig">90</span>:Pattern(<img src="spinner_store_price_999-1.png" />).similar(<span class="dig">0.95</span>).targetOffset(<span class="dig">89</span>,<span class="dig">2</span>),<span class="dig">200</span>:Pattern(<img src="spinner_store_price_1999-1.png" />).similar(<span class="dig">0.95</span>).targetOffset(<span class="dig">93</span>,<span class="dig">1</span>),<span class="dig">600</span>:Pattern(<img src="spinner_store_price_4999-1.png" />).similar(<span class="dig">0.95</span>).targetOffset(<span class="dig">95</span>,-<span class="dig">1</span>)}
+    <span class="kw">try</span>:
+        dialogs.clear_dialogs()
+    <span class="kw">except</span>:
+        <span class="kw">raise</span> CustomExceptions.UIError(<span class="str">"Sikuli can't close dialogs."</span>)
+
+    setup.set_top_bar(hearts = <span class="dig">0</span>, coins = <span class="dig">0</span>, spinners = (<span class="dig">1000</span> - spins))
+    <span class="kw">assert</span> reg.exists(Pattern(<img src="TopBarSpinners-2.png" />).similar(<span class="dig">0.60</span>).targetOffset(<span class="dig">46</span>,<span class="dig">2</span>),<span class="dig">3</span>)
+    <span class="skw">click</span>(reg.getLastMatch())
+
+    <span class="kw">assert</span> reg.exists(costDict[spins],<span class="dig">3</span>)
+    <span class="skw">click</span>(reg.getLastMatch())
+    <span class="skw">wait</span>(<span class="dig">2</span>)
+    dialogs.click_thru_fb_buy()
+    reg.<span class="skw">wait</span>(<img src="1467072782461-1.png" />,<span class="dig">10</span>)
+
+    <span class="kw">assert</span> reg.exists(Pattern(<img src="TopBarSpinners-2.png" />).similar(<span class="dig">0.60</span>),<span class="dig">5</span>).exists(Pattern(<img src="topbar_spinner_total_1000-1.png" />).similar(<span class="dig">0.90</span>),<span class="dig">3</span>)
+
+<span class="kw">def</span> check_coins_store(coins,spins):
+    <span class="str">""" Checks if x coins can be bought for y spinners. """</span>
+    costDict = {<span class="dig">5</span>:Pattern(<img src="coins_store_spinner_cost_5-1.png" />).similar(<span class="dig">0.90</span>),<span class="dig">8</span>:Pattern(<img src="CoinsStore8Spinner-1.png" />).similar(<span class="dig">0.90</span>),<span class="dig">14</span>:Pattern(<img src="CoinsStore14Spinner-1.png" />).similar(<span class="dig">0.90</span>),<span class="dig">20</span>:Pattern(<img src="coins_store_spinner_cost_20-1.png" />).similar(<span class="dig">0.90</span>)}
+    <span class="kw">try</span>:
+        dialogs.clear_dialogs()
+    <span class="kw">except</span>:
+        <span class="kw">pass</span>
+
+    setup.set_top_bar(hearts = <span class="dig">0</span>, coins = (<span class="dig">40001</span> - coins), spinners = spins)
+
+    <span class="kw">assert</span> reg.exists(Pattern(<img src="coinsTopBar-2.png" />).similar(<span class="dig">0.60</span>).targetOffset(<span class="dig">69</span>,-<span class="dig">1</span>),<span class="dig">5</span>)
+    <span class="skw">click</span>(reg.getLastMatch())
+
+    <span class="kw">assert</span> reg.exists(costDict[spins],<span class="dig">3</span>)
+    <span class="skw">click</span>(reg.getLastMatch())
+    <span class="skw">wait</span>(<span class="dig">2</span>)
+    <span class="kw">assert</span> reg.exists(Pattern(<img src="coinsTopBar-2.png" />).similar(<span class="dig">0.60</span>).targetOffset(<span class="dig">69</span>,-<span class="dig">1</span>),<span class="dig">10</span>).exists(Pattern(<img src="top_bar_coins_total_40001-1.png" />).similar(<span class="dig">0.90</span>),<span class="dig">3</span>)
+    <span class="kw">assert</span> reg.exists(Pattern(<img src="TopBarSpinners-1.png" />).similar(<span class="dig">0.60</span>),<span class="dig">3</span>).exists(Pattern(<img src="top_bar_spinner_total_0-1.png" />).similar(<span class="dig">0.90</span>),<span class="dig">3</span>)
+
+<span class="kw">def</span> check_refill_hearts():
+    <span class="str">"""Checks if hearts can be refilled with Golden Spinners on the map. 
+       Aborts if HHH is Active."""</span>
+    <span class="kw">if</span> reg.exists(<img src="HHHStore-2.png" />,<span class="dig">2</span>):
+        <span class="kw">print</span> <span class="str">'Hearts Happy Hour is active'</span>
+        <span class="kw">return</span> False
+
+    setup.set_top_bar(<span class="dig">4</span>, <span class="dig">1</span>, <span class="dig">5</span>)
+    <span class="kw">assert</span> reg.exists(Pattern(<img src="HeartsStore-2.png" />).targetOffset(<span class="dig">54</span>, <span class="dig">1</span>), <span class="dig">5</span>)
+    <span class="skw">click</span>(reg.getLastMatch())
+    <span class="kw">assert</span> reg.exists(<img src="RefillHeartsSpinnersButton-2.png" />, <span class="dig">8</span>)
+    <span class="skw">click</span>(reg.getLastMatch())
+    <span class="kw">assert</span> reg.exists(Pattern(<img src="HeartsFull-2.png" />).similar(<span class="dig">0.90</span>), <span class="dig">2</span>)
+    <span class="kw">assert</span> reg.exists(<img src="TopBarSpinnerIcon-2.png" />, <span class="dig">10</span>).right().exists(
+        Pattern(<img src="SpinnerTotal0-2.png" />).similar(<span class="dig">0.90</span>))
+
+<span class="kw">def</span> check_refill_hearts_level():
+    <span class="str">"""Checks if hearts can be refilled with spinners during a level.
+    Abort if HHH is active."""</span>
+    <span class="kw">if</span> reg.exists(<img src="HHHStore-2.png" />, <span class="dig">2</span>):
+        <span class="kw">print</span>(<span class="str">'Hearts Happy Hour is active'</span>)
+        <span class="kw">return</span> False
+
+    setup.set_top_bar(<span class="dig">4</span>, <span class="dig">1</span>, <span class="dig">5</span>)
+    maps.select_level(<span class="dig">1</span>)
+    levels.verify_level_load()
+    <span class="kw">assert</span> reg.exists(Pattern(<img src="HeartsStore-1.png" />).targetOffset(<span class="dig">54</span>, <span class="dig">1</span>), <span class="dig">5</span>)
+    <span class="skw">click</span>(reg.getLastMatch())
+    <span class="kw">assert</span> reg.exists(<img src="RefillHeartsSpinnersButton-2.png" />, <span class="dig">8</span>)
+    <span class="skw">click</span>(reg.getLastMatch())
+    <span class="kw">assert</span> reg.exists(Pattern(<img src="HeartsFull-2.png" />).similar(<span class="dig">0.90</span>), <span class="dig">2</span>)
+    <span class="kw">assert</span> reg.exists(<img src="TopBarSpinnerIcon-1.png" />, <span class="dig">10</span>).right().exists(
+        Pattern(<img src="SpinnerTotal0-1.png" />).similar(<span class="dig">0.90</span>))
+    levels.exit_level()
+
+<span class="kw">def</span> check_PUP_store():
+    <span class="str">"""Loads a level with a power up equipped, then check if power up
+    is present in level, and coin balance is correct."""</span>
+    <span class="kw">try</span>:
+        dialogs.clear_dialogs()
+    <span class="kw">except</span>:
+        <span class="kw">raise</span> CustomExceptions.UIError(<span class="str">"Sikuli can't close dialogs."</span>)
+
+    setup.set_top_bar(<span class="dig">5</span>, <span class="dig">6500</span>, <span class="dig">5</span>)
+    maps.select_level(<span class="dig">4</span>)
+
+    <span class="kw">assert</span> reg.exists(pupDict[<span class="str">"extraspins4"</span>], <span class="dig">2</span>)
+    <span class="skw">click</span>(reg.getLastMatch())
+    <span class="kw">assert</span> reg.exists(<img src="PUPStoreExtraSpins-1.png" />, <span class="dig">2</span>)
+    reg.<span class="skw">click</span>(<img src="PUPStoreBuyButton-1.png" />)
+
+    <span class="kw">assert</span> reg.exists(<img src="CoinStoreIcon-1.png" />, <span class="dig">10</span>).right().exists(
+        Pattern(<img src="CoinTotal500-1.png" />).similar(<span class="dig">0.90</span>), <span class="dig">3</span>)
+    levels.verify_level_load()
+    <span class="skw">wait</span>(<span class="dig">3</span>)
+    <span class="kw">assert</span> reg.exists(<img src="CoinStoreIcon-1.png" />, <span class="dig">10</span>).right().exists(
+        Pattern(<img src="CoinTotal500-1.png" />).similar(<span class="dig">0.90</span>), <span class="dig">3</span>)
+    setup.set_top_bar(<span class="dig">5</span>, <span class="dig">6500</span>, <span class="dig">5</span>)
+    <span class="skw">wait</span>(<span class="dig">2</span>)
+    levels._spin_and_daub()
+    <span class="kw">assert</span> reg.exists(pupDict[<span class="str">"jokerplus"</span>])
+    <span class="skw">click</span>(reg.getLastMatch())
+    <span class="kw">assert</span> reg.exists(<img src="PUPStoreJokerPlus-1.png" />, <span class="dig">3</span>)
+    reg.<span class="skw">click</span>(<img src="PUPStoreBuyButton-1.png" />)
+
+    <span class="kw">assert</span> reg.exists(<img src="CoinStoreIcon-1.png" />, <span class="dig">10</span>).right().exists(
+        Pattern(<img src="CoinTotal500-1.png" />).similar(<span class="dig">0.90</span>), <span class="dig">3</span>)
+    levels._spin_and_daub()
+
+    levels.exit_level()
+
+<span class="kw">def</span> check_FTU_level_1(rush=False):
+    <span class="str">"""Checks first time user level 1 experience.
+
+    Args:
+        rush:   True to skip the 45 sec animation;
+                False to wait for it to end.
+
+    """</span>
+    <span class="kw">assert</span> reg.exists(<img src="FTUBannerNewPlayerSpecial-1.png" />, <span class="dig">30</span>)
+    dialogs.close_dialog()
+    levels.check_spin_button(<span class="dig">8</span>)
+    <span class="skw">click</span>(reg.getLastMatch())
+    <span class="skw">wait</span>(<span class="dig">4</span>)
+    <span class="kw">assert</span> reg.exists(Pattern(<img src="FTULvl1Tile10-1.png" />).similar(<span class="dig">0.90</span>), <span class="dig">4</span>)
+    <span class="skw">click</span>(reg.getLastMatch())
+
+    levels._spin_and_daub()
+    levels.check_spin_button(<span class="dig">3</span>)
+    <span class="skw">click</span>(reg.getLastMatch())
+    <span class="skw">wait</span>(<span class="dig">3</span>)
+
+    levels._repeat_spin_and_daub(<span class="dig">5</span>)
+    <span class="skw">wait</span>(<span class="dig">3</span>)
+    levels._spin_and_daub()
+    <span class="kw">assert</span> reg.exists(<img src="NISSkipButton-2.png" />, <span class="dig">10</span>)
+    <span class="kw">if</span> rush <span class="kw">is</span> True:
+        <span class="cmt"># skip the 45sec animation</span>
+        <span class="skw">click</span>(reg.getLastMatch())
+        <span class="kw">assert</span> reg.exists(<img src="sign_out_next_button-2.png" />, <span class="dig">5</span>)
+        <span class="skw">click</span>(reg.getLastMatch())
+        <span class="skw">wait</span>(<span class="dig">2</span>)
+    <span class="kw">else</span>:
+        <span class="kw">assert</span> reg.exists(<img src="sign_out_next_button-2.png" />, <span class="dig">45</span>)
+        <span class="skw">wait</span>(<span class="dig">1</span>)
+        <span class="skw">click</span>(reg.getLastMatch())
+        <span class="skw">wait</span>(<span class="dig">2</span>)
+
+<span class="kw">def</span> check_FTU_level_2(rush=False):
+    <span class="str">"""Check level 2 first time user experience."""</span>
+    <span class="kw">assert</span> reg.exists(Pattern(<img src="FTULevel2Node-1.png" />).similar(<span class="dig">0.90</span>), <span class="dig">3</span>)
+    <span class="skw">click</span>(reg.getLastMatch())
+    <span class="kw">assert</span> reg.exists(<img src="PUPStorePlayButton-1.png" />, <span class="dig">3</span>)
+    <span class="skw">click</span>(reg.getLastMatch())
+    <span class="skw">wait</span>(<span class="dig">5</span>)
+    <span class="cmt"># only appears on the first level 2 play through</span>
+    <span class="kw">assert</span> reg.exists(<img src="NISSkipButton-2.png" />, <span class="dig">10</span>)
+    <span class="kw">if</span> rush <span class="kw">is</span> True:
+        <span class="skw">click</span>(reg.getLastMatch())
+    levels.check_spin_button(<span class="dig">15</span>)
+    <span class="skw">click</span>(reg.getLastMatch())
+    <span class="skw">wait</span>(<span class="dig">3</span>)
+    levels._daub_matrix()
+
+    levels._repeat_spin_and_daub(<span class="dig">3</span>)
+
+    levels.check_spin_button(<span class="dig">3</span>)
+    <span class="skw">click</span>(reg.getLastMatch())
+    <span class="skw">wait</span>(<span class="dig">3</span>)
+
+    levels._repeat_spin_and_daub(<span class="dig">4</span>)
+    <span class="kw">assert</span> reg.exists(<img src="sign_out_next_button-1.png" />, <span class="dig">20</span>)
+    <span class="skw">wait</span>(<span class="dig">1</span>)
+    <span class="skw">click</span>(reg.getLastMatch())
+    <span class="skw">wait</span>(<span class="dig">2</span>)
+
+
+<span class="kw">def</span> check_FTU_level_3():
+    <span class="str">"""Check level 3 FTUE."""</span>
+    maps.select_level(<span class="dig">3</span>)
+    reg.<span class="skw">click</span>(<img src="PUPStorePlayButton-1.png" />)
+
+    levels.check_spin_button(<span class="dig">30</span>)
+    <span class="skw">click</span>(reg.getLastMatch())
+    <span class="skw">wait</span>(<span class="dig">3</span>)
+    levels._daub_matrix()
+
+    levels._repeat_spin_and_daub(<span class="dig">16</span>)
+    <span class="skw">wait</span>(<span class="dig">3</span>)
+    <span class="kw">assert</span> reg.exists(<img src="TutorialClaimFreeSpinnersButton-1.png" />, <span class="dig">3</span>)
+    <span class="skw">click</span>(reg.getLastMatch())
+
+    levels._repeat_spin_and_daub(<span class="dig">4</span>)
+    <span class="kw">assert</span> reg.exists(<img src="sign_out_next_button-1.png" />, <span class="dig">20</span>)
+    <span class="skw">wait</span>(<span class="dig">1</span>)
+    <span class="skw">click</span>(reg.getLastMatch())
+    <span class="skw">wait</span>(<span class="dig">2</span>)
+
+
+<span class="kw">def</span> check_FTU_level_4(rush=False):
+    <span class="str">"""Check level 4 FTUE"""</span>
+    <span class="cmt"># TODO: add rush mode</span>
+    maps.select_level(<span class="dig">4</span>)
+    <span class="kw">assert</span> reg.exists(<img src="FTUEExtraSpins-1.png" />, <span class="dig">3</span>)
+    <span class="skw">click</span>(reg.getLastMatch())
+    <span class="skw">wait</span>(<span class="dig">1.5</span>)
+    reg.<span class="skw">click</span>(<img src="PUPStorePlayButton-1.png" />)
+
+    levels.check_spin_button(<span class="dig">30</span>)
+    <span class="skw">click</span>(reg.getLastMatch())
+    <span class="skw">wait</span>(<span class="dig">3</span>)
+    <span class="kw">assert</span> reg.exists(<img src="FTUELVL4JokerPlusIcon-1.png" />, <span class="dig">10</span>)
+    <span class="skw">click</span>(reg.getLastMatch())
+    <span class="skw">wait</span>(<span class="dig">0.5</span>)
+    <span class="skw">click</span>(reg.getLastMatch())
+
+    levels.check_spin_button(<span class="dig">30</span>)
+    <span class="skw">click</span>(reg.getLastMatch())
+    <span class="skw">wait</span>(<span class="dig">3</span>)
+    levels._daub_matrix()
+
+    levels._repeat_spin_and_daub(<span class="dig">13</span>)
+    <span class="skw">wait</span>(<span class="dig">3</span>)
+    <span class="kw">assert</span> reg.exists(<img src="MiniGameBet10Button-1.png" />, <span class="dig">6</span>)
+    <span class="skw">wait</span>(<span class="dig">2</span>)
+    <span class="skw">click</span>(reg.getLastMatch())
+    <span class="skw">wait</span>(<span class="dig">5</span>)
+
+    levels.check_spin_button(<span class="dig">10</span>)
+    <span class="skw">click</span>(reg.getLastMatch())
+    <span class="skw">wait</span>(<span class="dig">3</span>)
+    levels._daub_matrix()
+
+    levels._repeat_spin_and_daub(<span class="dig">6</span>)
+
+    levels.check_spin_button(<span class="dig">30</span>)
+    <span class="skw">click</span>(reg.getLastMatch())
+    <span class="skw">wait</span>(<span class="dig">3</span>)
+    levels._daub_matrix()
+
+    levels._spin_and_daub()
+    <span class="kw">assert</span> reg.exists(<img src="sign_out_next_button-1.png" />, <span class="dig">20</span>)
+    <span class="skw">wait</span>(<span class="dig">1</span>)
+    <span class="skw">click</span>(reg.getLastMatch())
+    <span class="skw">wait</span>(<span class="dig">2</span>)
+    dialogs.clear_dialogs()
+
+<span class="kw">def</span> check_level_range(start_lvl, end_lvl, spend=False):
+    <span class="str">""" Progress through levels in the specified range"""</span>
+    maps.play_level_range(start_lvl, end_lvl, p_spend=spend)
+
+<span class="kw">def</span> check_reward_video_coins(cadence = <span class="dig">5</span>):
+    <span class="str">"""Ad testing methods. Reward video tests all ads specified in the expected 
+       cadence can be viewed. """</span>
+
+    clearDialogs()
+
+    <span class="kw">for</span> index <span class="kw">in</span> range(cadence):
+        <span class="kw">print</span> <span class="str">"Trying ad: "</span> + str(index + <span class="dig">1</span>)
+        <span class="kw">assert</span> reg.exists(Pattern(<img src="coinsTopBar-2.png" />).similar(<span class="dig">0.80</span>).targetOffset(<span class="dig">70</span>,<span class="dig">0</span>),<span class="dig">3</span>)
+        <span class="skw">click</span>(reg.getLastMatch())
+
+        <span class="kw">if</span> reg.exists(<img src="RewardVideoCoinsButton-1.png" />):
+            <span class="kw">print</span> <span class="str">"Earn button available. Proceeding..."</span>
+            <span class="skw">click</span>(reg.getLastMatch())
+        <span class="kw">elif</span> reg.exists(<img src="RewardVideoCheckBackBanner-1.png" />):
+            <span class="kw">print</span> <span class="str">"No ads available!"</span>
+            <span class="kw">assert</span> False, <span class="str">"Ad not available when expected"</span>
+            <span class="kw">break</span>
+
+        <span class="kw">assert</span> exists(<img src="RewardVideoCoinsBanner-1.png" />,<span class="dig">5</span>)
+
+        <span class="str">"""
+        global found_button
+        found_button = False
+        reg_playbutton_observe = Region(reg)
+        reg_playbutton_observe.onAppear("RewardVideoPlayButton-1.png",reward_play_button)
+        #reg_playbutton_observe.onAppear("RewardVideoPlaybutton1-1.png",reward_play_button)
+        reg_playbutton_observe.observe(10)
+
+        if found_button == False:
+            print "No Play button found"
+            assert False, "No play button detected on ad"
+        """</span>
+
+        <span class="kw">if</span> reg.exists(<img src="RewardVideoPlayButton-1.png" />,<span class="dig">10</span>):
+            <span class="skw">click</span>(reg.getLastMatch())
+        <span class="kw">elif</span> reg.exists(<img src="RewardVideoPlaybutton1-1.png" />,<span class="dig">2</span>):
+            <span class="skw">click</span>(reg.getLastMatch())
+        <span class="kw">else</span>:
+            <span class="kw">print</span> <span class="str">"Play button not found!"</span>
+            <span class="kw">assert</span> False, <span class="str">"No play button detected on ad"</span>
+
+        start_time = time.time()
+
+        <span class="kw">assert</span> reg.exists(<img src="RewardVideoCoinsSuccess-1.png" />,<span class="dig">120</span>)
+        <span class="kw">print</span> <span class="str">"Ad took: "</span> + str(time.time() - start_time)
+
+        <span class="kw">assert</span> exists(<img src="RewardVideoCloseButton-1.png" />)
+        <span class="skw">click</span>(getLastMatch())
+        clearDialogs()
+
+<span class="kw">def</span> check_rva_finalspins(cadence = <span class="dig">3</span>, numtests = <span class="dig">2</span>):
+    absent_ads = <span class="dig">0</span>
+    clearDialogs()
+
+    <span class="kw">for</span> index <span class="kw">in</span> range(numtests):
+        <span class="kw">if</span> reg.exists(Pattern(<img src="TopbarHeartsValue0-1.png" />).similar(<span class="dig">0.98</span>)):
+                <span class="kw">print</span> <span class="str">"Out of hearts. Refilling..."</span>
+                admin_adjust_player(<span class="dig">100009124185968</span>,
+                                    hearts=<span class="dig">5</span>,
+                                    reset_rva_coins=False,
+                                    envURL=<span class="str">r"http://slingo-appob.bstage.ca/slingo/console/index.htm"</span>)
+        selectLevel(<span class="dig">41</span>)
+        handle_daily_deal()
+        verifyLevelLoad()
+        playLevel(wait_for_finalspins = True)
+        <span class="kw">print</span> <span class="str">"Final spins reached"</span>
+        <span class="kw">if</span> reg.exists(<img src="RewardVideoFinalSpins-1.png" />,<span class="dig">3</span>):
+            <span class="kw">print</span> <span class="str">"Final Spins Reward Video present"</span>
+            check_finalspins_ad()
+        <span class="kw">else</span>:
+            <span class="kw">print</span> <span class="str">"Final Spins Reward Video absent!"</span>
+            absent_ads += <span class="dig">1</span>
+            clearDialogs()
+            <span class="skw">wait</span>(<span class="dig">3</span>)
+            handleAdInterstitial()
+            clearDialogs()
+
+    <span class="kw">if</span> absent_ads &gt; <span class="dig">0</span>:
+        <span class="kw">assert</span> False, <span class="str">"During some level ends ads were not present"</span>
+    <span class="kw">else</span>:
+        <span class="kw">assert</span> True
+
+<span class="kw">def</span> check_finalspins_ad():
+    reg_finalspins_rva_observe = reg
+    <span class="cmt">#reg_finalspins_rva_observe.onAppear(,observe_finalspins_ad)</span>
+
+    reg.<span class="skw">click</span>(Pattern(<img src="RewardVideoFinalSpins-1.png" />).targetOffset(<span class="dig">229</span>,<span class="dig">3</span>))
+
+<span class="kw">def</span> reward_play_button(event):
+    <span class="kw">global</span> found_button
+    found_button = True
+    <span class="kw">assert</span> True
+    <span class="skw">click</span>(event.region.getLastMatch())
+
+<span class="cmt">### Interstitial ads tests.</span>
+<span class="kw">def</span> check_inter_ad(cadence = <span class="dig">3</span>,numtests = <span class="dig">2</span>):
+    reg_ad_observe = reg
+    reg_ad_observe.onAppear(<img src="AdBanner-1.png" />,observe_inter_ad)
+
+    clearDialogs()
+
+    <span class="kw">for</span> num <span class="kw">in</span> range(numtests):
+        <span class="kw">for</span> index <span class="kw">in</span> range(cadence):
+            <span class="kw">if</span> reg.exists(Pattern(<img src="TopbarHeartsValue0-1.png" />).similar(<span class="dig">0.98</span>)):
+                <span class="kw">print</span> <span class="str">"Out of hearts. Refilling..."</span>
+                admin_adjust_player(<span class="dig">100009124185968</span>,
+                                    hearts=<span class="dig">5</span>,
+                                    reset_rva_coins=False,
+                                    envURL=<span class="str">r"http://slingo-appob.bstage.ca/slingo/console/index.htm"</span>)
+            selectLevel(<span class="dig">1</span>)
+            handle_daily_deal()
+            verifyLevelLoad()
+            levels.exit_level()
+            clearDialogs()
+            reg_ad_observe.observe(<span class="dig">10</span>,False)
+
+<span class="kw">def</span> observe_inter_ad(event):
+        <span class="kw">print</span> <span class="str">"Interstitial Ad Found"</span>
+        start_time = time.time()
+        reg.waitVanish(<img src="AdBanner-1.png" />,<span class="dig">60</span>)
+        <span class="kw">print</span> <span class="str">"Ad time: "</span> + str(time.time() - start_time)
+        clearDialogs()
+
+
+<span class="cmt"># The following functions are for setting up cord information for level nodes.</span>
+<span class="kw">def</span> displayNodePositions():
+    reg.findAll(<img src="1432594286365.png" />)
+    nodes = reg.getLastMatches()
+    <span class="kw">while</span> nodes.hasNext():
+        currentNode = nodes.next()
+        <span class="kw">print</span>(str(currentNode.x) + <span class="str">","</span> + str(currentNode.y))
+
+
+<span class="kw">def</span> _hover_node(first, last):
+    <span class="kw">for</span> item <span class="kw">in</span> Cord.lvlList[first:last]:
+        hover(reg.getTopLeft().offset(item.x, item.y))
+
+<span class="kw">def</span> _print_mouse_pos():
+    <span class="kw">print</span>(str(Env.getMouseLocation().x - reg.getTopLeft().x) + <span class="str">","</span> +
+          str(Env.getMouseLocation().y - reg.getTopLeft().y))
+
+
+<span class="kw">def</span> _record_mouse_pos(pos_number):
+    reg.highlight(<span class="dig">1</span>)
+    <span class="skw">wait</span>(<span class="dig">1</span>)
+    reg.highlight(<span class="dig">1</span>)
+    <span class="skw">wait</span>(<span class="dig">1</span>)
+    <span class="kw">for</span> i <span class="kw">in</span> range(pos_number):
+        reg.highlight(<span class="dig">3</span>)
+        _print_mouse_pos()
+
+<span class="kw">def</span> record_node_pos():
+    maps.select_map(<span class="dig">7</span>)
+
+    <span class="str">"""
+    maps.set_map_area(1)
+    _record_mouse_pos(11)
+    maps.set_map_area(2)
+    _record_mouse_pos(14)
+    maps.set_map_area(3)
+    _record_mouse_pos(11)
+    maps.set_map_area(4)
+    _record_mouse_pos(14)
+    maps.set_map_area(5)    
+    _record_mouse_pos(12)
+    """</span>
+    maps.set_map_area(<span class="dig">6</span>)
+    _record_mouse_pos(<span class="dig">13</span>)
+    <span class="str">"""
+    maps.set_map_area(7)
+    _record_mouse_pos(11)
+    maps.set_map_area(8)
+    _record_mouse_pos(14)
+    """</span>
+
+
+<span class="kw">def</span> main():
+    <span class="kw">pass</span>
+
+<span class="kw">if</span> __name__ == <span class="str">'__main__'</span>:
+    main()
+</pre>
+</body>
+</html>

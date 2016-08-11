@@ -1,0 +1,121 @@
+
+<html>
+   <head>
+      <style type="text/css">
+         .sikuli-code {
+            font-size: 20px;
+            font-family: "Osaka-mono", Monospace;
+            line-height: 1.5em;
+            display:table-cell;
+            white-space: pre-wrap;       /* css-3 */
+            white-space: -moz-pre-wrap !important;  /* Mozilla, since 1999 */
+            white-space: -pre-wrap;      /* Opera 4-6 */
+            white-space: -o-pre-wrap;    /* Opera 7 */
+            word-wrap: break-word;       /* Internet Explorer 5.5+ */
+            width: 99%;   /* remove horizontal scroll-bar when viewing in IE7 */
+         }
+         .sikuli-code img {
+            vertical-align: middle;
+            margin: 2px;
+            border: 1px solid #ccc;
+            padding: 2px;
+            -moz-border-radius: 5px;
+            -webkit-border-radius: 5px;
+            -moz-box-shadow: 1px 1px 1px gray;
+            -webkit-box-shadow: 1px 1px 2px gray;
+         }
+         .kw {
+            color: blue;
+         }
+         .skw {
+            color: rgb(63, 127, 127);
+         }
+
+         .str {
+            color: rgb(128, 0, 0);
+         }
+
+         .dig {
+            color: rgb(128, 64, 0);
+         }
+
+         .cmt {
+            color: rgb(200, 0, 200);
+         }
+
+         h2 {
+            display: inline;
+            font-weight: normal;
+         }
+
+         .info {
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 5px;
+            margin-bottom: 20px;
+            display: none;
+         }
+
+         a {
+            color: #9D2900;
+         }
+
+         body {
+            font-family: "Trebuchet MS", Arial, Sans-Serif;
+         }
+
+      </style>
+   </head>
+<body>
+<div class="info">
+<h2>dialogs.sikuli</h2> <a href="dialogs.zip">(Download this script)</a>
+</div>
+<pre class="sikuli-code">
+<span class="kw">from</span> sikuli <span class="kw">import</span> *
+
+<span class="kw">global</span> reg
+reg = SCREEN
+
+<span class="kw">def</span> close_dialog():
+    <span class="str">"""Closes the current dialog"""</span>
+    closebuttons = reg.findAll(<img src="DialogCloseButton.png" />)
+    sortedbuttons = sorted(closebuttons, key=<span class="kw">lambda</span> b: b.y)
+
+    reg.<span class="skw">click</span>(sortedbuttons[-<span class="dig">1</span>])
+
+<span class="kw">def</span> clear_dialogs():
+    <span class="str">"""As long as there are dialogues with a close button is closes 
+       them until no more are found"""</span>
+    <span class="kw">while</span> reg.exists(<img src="DialogCloseButton.png" />, <span class="dig">1</span>):
+        close_dialog()
+        <span class="skw">wait</span>(<span class="dig">1</span>)
+
+<span class="kw">def</span> handle_ad_interstitial():
+    <span class="str">"""If an interstitial ad is on screen it waits up to 60 
+       seconds for it to close"""</span>
+    <span class="kw">if</span> reg.exists(<img src="AdBanner.png" />,<span class="dig">3</span>):
+        <span class="kw">print</span> <span class="str">"Ad Found waiting to complete"</span>
+        reg.waitVanish(<img src="AdBanner.png" />,<span class="dig">60</span>)
+
+<span class="kw">def</span> handle_spinner_prompt(time=<span class="dig">1</span>):
+    <span class="str">"""Helps handle the the confimation of being out of spinners"""</span>
+    <span class="kw">if</span> reg.exists(<img src="SpinnerStoreBanner.png" />, time):
+        <span class="kw">assert</span> (reg.exists(Pattern(<img src="Spinner299BuyButton.png" />)
+                           .similar(<span class="dig">0.98</span>).targetOffset(<span class="dig">32</span>, <span class="dig">2</span>), <span class="dig">1</span>))
+        <span class="skw">click</span>(reg.getLastMatch())
+        click_thru_fb_buy()
+        <span class="skw">wait</span>(<span class="dig">2</span>)
+
+<span class="kw">def</span> click_thru_fb_buy():
+    <span class="str">"""When fb wants you to confirm if you really want to buy golden spinner,
+    click cancel."""</span>
+    temp_reg = reg.nearby(<span class="dig">150</span>)
+    <span class="kw">assert</span> temp_reg.exists(<img src="buy_golden_spinner_or_cancel.png" />,<span class="dig">5</span>), <span class="str">"FaceBook buy confirmation missing"</span>
+    <span class="skw">wait</span>(<span class="dig">3</span>)
+    temp_reg.<span class="skw">click</span>(<img src="buy_golden_spinner_or_cancel.png" />)
+    temp_reg.waitVanish(<img src="buy_golden_spinner_or_cancel.png" />, <span class="dig">5</span>)
+
+<span class="kw">def</span> park_cursor():
+    hover(reg.getBottomRight())
+</pre>
+</body>
+</html>

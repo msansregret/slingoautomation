@@ -1,0 +1,395 @@
+
+<html>
+   <head>
+      <style type="text/css">
+         .sikuli-code {
+            font-size: 20px;
+            font-family: "Osaka-mono", Monospace;
+            line-height: 1.5em;
+            display:table-cell;
+            white-space: pre-wrap;       /* css-3 */
+            white-space: -moz-pre-wrap !important;  /* Mozilla, since 1999 */
+            white-space: -pre-wrap;      /* Opera 4-6 */
+            white-space: -o-pre-wrap;    /* Opera 7 */
+            word-wrap: break-word;       /* Internet Explorer 5.5+ */
+            width: 99%;   /* remove horizontal scroll-bar when viewing in IE7 */
+         }
+         .sikuli-code img {
+            vertical-align: middle;
+            margin: 2px;
+            border: 1px solid #ccc;
+            padding: 2px;
+            -moz-border-radius: 5px;
+            -webkit-border-radius: 5px;
+            -moz-box-shadow: 1px 1px 1px gray;
+            -webkit-box-shadow: 1px 1px 2px gray;
+         }
+         .kw {
+            color: blue;
+         }
+         .skw {
+            color: rgb(63, 127, 127);
+         }
+
+         .str {
+            color: rgb(128, 0, 0);
+         }
+
+         .dig {
+            color: rgb(128, 64, 0);
+         }
+
+         .cmt {
+            color: rgb(200, 0, 200);
+         }
+
+         h2 {
+            display: inline;
+            font-weight: normal;
+         }
+
+         .info {
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 5px;
+            margin-bottom: 20px;
+            display: none;
+         }
+
+         a {
+            color: #9D2900;
+         }
+
+         body {
+            font-family: "Trebuchet MS", Arial, Sans-Serif;
+         }
+
+      </style>
+   </head>
+<body>
+<div class="info">
+<h2>levels.sikuli</h2> <a href="levels.zip">(Download this script)</a>
+</div>
+<pre class="sikuli-code">
+<span class="kw">from</span> sikuli <span class="kw">import</span> *
+<span class="kw">import</span> time
+<span class="kw">import</span> dialogs
+<span class="kw">from</span> cord <span class="kw">import</span> Cord
+
+<span class="kw">global</span> reg
+reg = SCREEN
+
+<span class="kw">global</span> matrix_size
+matrix_size = <span class="str">'5x5'</span>
+<span class="kw">global</span> level_type
+level_type = <span class="str">'classic'</span>
+
+spend = False
+
+<span class="kw">global</span> play_level
+play_level = False
+<span class="kw">global</span> finalspins_wait
+finalspins_wait = False
+<span class="kw">global</span> daubing
+daubing = True
+
+pupDict = {
+    <span class="str">"jokerplus"</span>: <img src="PUPIconJokerPlus.png" />,
+    <span class="str">"superjoker"</span>: <img src="PUPIconSuperJoker.png" />,
+    <span class="str">"pointmultiplier"</span>: <img src="PUPIconPointMultiplier.png" />,
+    <span class="str">"reelblitz"</span>: <img src="PUPIconReelBlitz.png" />,
+    <span class="str">"blockerbreaker"</span>: <img src="PUPIconBlockerBreaker.png" />
+
+}
+
+<span class="kw">def</span> check_spin_button(time_):
+    <span class="str">"""Checks if the spin button is enabled.
+    Args:
+        time_: wait time, in seconds, in case there is
+                an animation waiting to complete.
+
+    """</span>
+    timeout = time.time() + time_
+    <span class="kw">while</span> True:
+        <span class="cmt"># if either spinner button is preset, assert True</span>
+        <span class="kw">if</span> reg.exists(<img src="SpinButton.png" />, <span class="dig">0</span>) <span class="kw">or</span> reg.exists(
+                <img src="SpinButtonHighlighted.png" />, <span class="dig">0</span>):
+            <span class="kw">assert</span> True
+            <span class="kw">break</span>
+        <span class="cmt"># if time is up, assert False.</span>
+        <span class="kw">elif</span> time.time() &gt;= timeout:
+            <span class="kw">assert</span> False, <span class="str">"Spin button not present in time."</span>
+            <span class="kw">break</span>
+        <span class="cmt"># don't loop too fast</span>
+        <span class="kw">else</span>:
+            <span class="skw">wait</span>(<span class="dig">0.5</span>)
+
+<span class="kw">def</span> verify_level_load():
+    <span class="str">"""Launches the level from the sign up dialogue, wait for it to load
+    correctly, and record the time."""</span>
+    start_time = time.time()
+    <span class="kw">assert</span> reg.exists(<img src="PUPStorePlayButton.png" />, <span class="dig">5</span>)
+    <span class="skw">wait</span>(<span class="dig">1</span>)
+
+    <span class="skw">click</span>(reg.getLastMatch())
+    dialogs.park_cursor()
+    waitVanish(Pattern(<img src="MuteButtons.png" />).similar(<span class="dig">0.65</span>),<span class="dig">10</span>)
+    <span class="kw">print</span>(<span class="str">'Level is loading...'</span>)
+    <span class="kw">assert</span> reg.exists(Pattern(<img src="MuteButtons.png" />).similar(<span class="dig">0.65</span>),<span class="dig">30</span>), <span class="str">"Level load was not detected before timeout"</span>
+    timeout = time.time() + <span class="dig">30</span>
+    <span class="kw">while</span> True:
+        <span class="kw">if</span> reg.exists(<img src="PUPUnlockedFUE.png" />, <span class="dig">0</span>) <span class="kw">or</span> \
+               reg.exists(<img src="LetsGetSpinningBanner.png" />, <span class="dig">0</span>):
+            <span class="kw">assert</span> True
+            <span class="kw">break</span>
+
+        <span class="kw">if</span> time.time() &gt; timeout:
+            <span class="kw">assert</span> False, <span class="str">"Level load was not detected before timeout"</span>
+            <span class="kw">break</span>
+
+    elapsed_time = time.time() - start_time
+    <span class="kw">print</span>(<span class="str">"Level took: {} seconds to load."</span>.format(str(elapsed_time)))
+    <span class="skw">wait</span>(<span class="dig">1</span>)
+
+<span class="kw">def</span> verify_level_exit(skip_nis=True):
+    <span class="str">"""Watches for the level to deconstruct and then waits for the map
+       to construct. """</span>
+    <span class="kw">if</span> skip_nis:
+        reg_skip_observe = reg
+        reg_skip_observe.onAppear(<img src="NISSkipButton.png" />, event_skip_nis)
+        reg_skip_observe.observe(<span class="dig">45</span>,True)
+
+    start_time = time.time()
+    <span class="kw">assert</span> reg.exists(Pattern(<img src="MuteButtons.png" />).similar(<span class="dig">0.65</span>))
+    reg.waitVanish(Pattern(<img src="MuteButtons.png" />).similar(<span class="dig">0.65</span>),<span class="dig">30</span>)
+    start_time = time.time()
+    <span class="kw">print</span>(<span class="str">'Map is loading...'</span>)
+    <span class="kw">assert</span> reg.exists(Pattern(<img src="MuteButtons.png" />).similar(<span class="dig">0.65</span>),<span class="dig">30</span>), <span class="str">"Map load was not detected before timeout"</span>
+    elapsed_time = time.time() - start_time
+    <span class="kw">print</span>(<span class="str">"Map took: {} seconds to load."</span>.format(str(elapsed_time)))
+    <span class="skw">wait</span>(<span class="dig">1</span>)
+
+<span class="kw">def</span> event_skip_nis(event):
+    <span class="str">""" handles the observe NIS button skip event for verify_level_exit"""</span>
+    reg.<span class="skw">click</span>(event.pattern)
+
+<span class="kw">def</span> exit_level():
+    <span class="str">"""Quits a level"""</span>
+    <span class="kw">assert</span> reg.exists(<img src="LevelHomeButton-1.png" />)
+    <span class="skw">click</span>(reg.getLastMatch())
+    <span class="skw">wait</span>(<span class="dig">1</span>)
+    <span class="kw">assert</span> reg.exists(<img src="1422915703730.png" />)
+    <span class="skw">click</span>(reg.getLastMatch())
+    <span class="skw">wait</span>(<span class="dig">2</span>)
+    <span class="kw">assert</span> reg.exists(Pattern(<img src="MuteButtons-2.png" />).similar(<span class="dig">0.65</span>),<span class="dig">40</span>)
+
+
+<span class="kw">def</span> _daub_matrix():
+    <span class="str">"""Clicks each matrix tile on the game board in a pattern.
+
+    The pattern is gotten from the Cord library of coordinates.
+    It uses the matrix_size variable to choose between 5*5 or 7*7
+
+    """</span>
+    <span class="kw">global</span> daubing
+    daubing = True
+
+    <span class="cmt">#Should be a region covering only the lower right corner</span>
+    reg_observe_spin_ready = Region(reg.x + (reg.w / <span class="dig">2</span>), reg.y + (reg.h /<span class="dig">2</span>), reg.w / <span class="dig">2</span>, reg.h / <span class="dig">2</span>)
+    reg_observe_spin_ready.onAppear(<img src="SpinButton-1.png" />, event_daub_done)
+    reg_observe_spin_ready.observe(FOREVER, True)
+
+    storeDelay = Settings.MoveMouseDelay
+    <span class="cmt">#Settings.MoveMouseDelay = 0.01</span>
+    Settings.MoveMouseDelay = <span class="dig">0.0</span>
+    <span class="kw">if</span> matrix_size == <span class="str">'5x5'</span> <span class="kw">and</span> reg_observe_spin_ready.exists(<img src="spin_button_disabled.png" />,<span class="dig">0</span>):
+        <span class="kw">for</span> tile <span class="kw">in</span> Cord.tiles5x5:
+            <span class="kw">if</span> daubing:
+                <span class="skw">click</span>(reg.getTopLeft().offset(tile.x, tile.y))
+            <span class="kw">else</span>:
+                <span class="kw">break</span>
+    <span class="kw">elif</span> matrix_size == <span class="str">'7x7'</span> <span class="kw">and</span> reg_observe_spin_ready.exists(<img src="spin_button_disabled.png" />,<span class="dig">0</span>):
+        <span class="kw">for</span> tile <span class="kw">in</span> Cord.tiles7x7:
+            <span class="kw">if</span> daubing:
+                <span class="skw">click</span>(reg.getTopLeft().offset(tile.x, tile.y))
+            <span class="kw">else</span>:
+                <span class="kw">break</span>
+
+    Settings.MoveMouseDelay = storeDelay
+    reg_observe_spin_ready.stopObserver()
+
+<span class="kw">def</span> event_daub_done(event):
+    <span class="kw">global</span> daubing
+    daubing = False
+
+<span class="kw">def</span> _spin_and_daub():
+    <span class="str">"""If the spin button is there, it uses _daub_matrix to daub each tile."""</span>
+    check_spin_button(<span class="dig">3</span>)
+    <span class="skw">click</span>(reg.getLastMatch())
+    dialogs.park_cursor()
+    <span class="skw">wait</span>(<span class="dig">2</span>)
+    _daub_matrix()
+
+<span class="kw">def</span> _repeat_spin_and_daub(repeat):
+    <span class="str">"""Repeatedly call _spin_and_daub().
+    Args:
+        repeat: number of times we repeat calling _spin_and_daub().
+                Must be integer
+    """</span>
+    <span class="kw">for</span> i <span class="kw">in</span> range(repeat):
+        _spin_and_daub()
+
+<span class="kw">def</span> new_play_level(m_size=<span class="str">'5x5'</span>, finalspins=False, l_spend=False):
+    <span class="kw">global</span> matrix_size
+    matrix_size = m_size
+    <span class="kw">global</span> play_level
+    play_level = True
+    <span class="kw">global</span> spend
+    spend = l_spend
+    <span class="kw">global</span> finalspins_wait
+    <span class="kw">if</span> finalspins == True:
+        finalspins_wait = True
+
+    playtime = <span class="dig">500</span>
+
+
+    reg_finalspins_observe = Region(reg)
+    reg_finalspins_observe.onAppear(<img src="finalspins_dialog_banner.png" />, event_finalspins)
+    reg_finalspins_observe.observe(playtime, True)
+
+
+    reg_spin_observe = Region(reg.x + (reg.w / <span class="dig">2</span>), reg.y + (reg.h /<span class="dig">2</span>), reg.w / <span class="dig">2</span>, reg.h / <span class="dig">2</span>)
+    reg_spin_observe.onAppear(<img src="SpinButton-1.png" />, event_spin)
+    reg_spin_observe.observe(playtime, True)
+
+
+    reg_minigame_observe = Region(reg)
+    reg_minigame_observe.onAppear(<img src="MiniGameBet10Button.png" />, event_minigame)
+    reg_minigame_observe.observe(playtime, True)
+
+
+    reg_help_observe = Region(reg)
+    reg_help_observe.onAppear(<img src="free_1.png" />, event_cherub_help)
+    reg_help_observe.onAppear(<img src="free_2.png" />, event_cherub_help)
+    reg_help_observe.observe(playtime, True)
+
+
+    reg_levelend_observe = Region(reg)
+    reg_levelend_observe.onAppear(<img src="level_end_banner_win.png" />, event_level_win)
+    reg_levelend_observe.onAppear(<img src="level_end_banner_lose.png" />, event_level_lose)
+    reg_levelend_observe.observe(playtime, True)
+
+
+    spin_timeout = <span class="dig">0</span>
+    timeout = time.time() + playtime
+    <span class="kw">while</span> play_level:
+        <span class="skw">wait</span>(<span class="dig">1</span>)
+        <span class="kw">if</span> reg_spin_observe.exists(<img src="spin_button_disabled.png" />,<span class="dig">0</span>):
+            spin_timeout += <span class="dig">1</span>
+
+        <span class="kw">if</span> spin_timeout &gt;= <span class="dig">10</span>:
+            _daub_matrix()
+            spin_timeout = <span class="dig">0</span>
+
+        <span class="kw">if</span> <span class="kw">not</span> reg.exists(Pattern(<img src="MuteButtons-1.png" />).similar(<span class="dig">0.65</span>).targetOffset(<span class="dig">15</span>,-<span class="dig">25</span>)):
+            <span class="kw">assert</span> False, <span class="str">"Slingo went missing during level play"</span>
+            <span class="kw">break</span>
+        <span class="kw">elif</span> time.time() &gt; timeout:
+            <span class="kw">assert</span> False, <span class="str">"Playing level took longer than timeout"</span>
+            <span class="kw">break</span>
+
+    reg_finalspins_observe.stopObserver()
+    reg_spin_observe.stopObserver()
+    reg_help_observe.stopObserver()
+    reg_minigame_observe.stopObserver()
+    reg_levelend_observe.stopObserver()
+
+    verify_level_exit()
+
+
+<span class="kw">def</span> event_finalspins(event):
+    <span class="kw">global</span> play_level
+    <span class="kw">global</span> daubing
+    daubing = False
+    <span class="kw">print</span>(<span class="str">"Final spins found"</span>)
+    <span class="kw">if</span> finalspins_wait:
+        <span class="kw">print</span>(<span class="str">"Waiting on Final Spins"</span>)
+        event.region.stopObserver()
+        play_level = False
+    <span class="kw">elif</span> spend <span class="kw">and</span> reg.exists(<img src="1468600681405.png" />):
+        reg_offer_observe = Region(reg)
+        reg_offer_observe.onAppear(<img src="purchase_double_up_offer.png" />, event_offer)
+        reg_offer_observe.observe(FOREVER,True)
+        <span class="kw">print</span>(<span class="str">"Buying Spinners"</span>)
+        <span class="kw">assert</span> reg.exists(<img src="finalspins_spinner_5.png" />)
+        <span class="skw">click</span>(reg.getLastMatch())
+        <span class="skw">wait</span>(<span class="dig">3</span>)
+        dialogs.handle_spinner_prompt(<span class="dig">2</span>)
+        reg_offer_observe.stopObserver()
+        event.repeat(<span class="dig">3</span>)
+    <span class="kw">else</span>:
+        <span class="kw">print</span>(<span class="str">"Closing out Final Spins"</span>)
+        play_level = False
+        <span class="skw">wait</span>(<span class="dig">2</span>)
+        dialogs.clear_dialogs()
+        event.region.stopObserver()
+
+<span class="kw">def</span> event_offer(event):
+    reg.<span class="skw">click</span>(Pattern(<img src="purchase_double_up_offer.png" />).targetOffset(<span class="dig">288</span>,-<span class="dig">1</span>))
+
+<span class="kw">def</span> event_level_win(event):
+    <span class="kw">print</span> <span class="str">"Level Win Detected"</span>
+    <span class="kw">global</span> play_level
+    play_level = False
+
+<span class="kw">def</span> event_level_lose(event):
+    <span class="kw">print</span> <span class="str">"Level Lose Detected"</span>
+    <span class="kw">global</span> play_level
+    play_level = False
+
+<span class="kw">def</span> event_spin(event):
+    _spin_and_daub()
+    event.repeat()
+
+<span class="kw">def</span> event_minigame(event):
+    handle_mini_game()
+    event.repeat(<span class="dig">3</span>)
+
+<span class="kw">def</span> event_cherub_help(event):
+    <span class="skw">click</span>(event.pattern)
+    event.repeat(<span class="dig">3</span>)
+
+
+<span class="kw">def</span> handle_mini_game():
+    <span class="str">"""Handles shell mini game and rock, paper, scissors game.
+
+    Since we're having problems right now, take screenshots before trying to 
+    click on anything. 
+
+    """</span>
+    <span class="kw">print</span>(<span class="str">"Minigame discovered"</span>)
+    <span class="kw">assert</span> reg.exists(<img src="MiniGameBet10Button.png" />)
+    <span class="skw">wait</span>(<span class="dig">2</span>)
+    reg.<span class="skw">click</span>(<img src="MiniGameBet10Button.png" />)
+    <span class="kw">if</span> reg.exists(<img src="jokers_shell_game.png" />, <span class="dig">1</span>):
+        <span class="kw">print</span>(<span class="str">"Play shell game"</span>)
+        reg.<span class="skw">wait</span>(<img src="minigame_joker_cup_pickbanner.png" />, <span class="dig">10</span>)
+        <span class="skw">wait</span>(<span class="dig">1</span>)
+        reg.<span class="skw">click</span>(<img src="minigame_joker_cup.png" />)
+
+    <span class="kw">if</span> reg.exists(<img src="rock_paper_scissors.png" />, <span class="dig">5</span>):
+        <span class="kw">print</span>(<span class="str">"Play RPS game"</span>)
+        reg.<span class="skw">click</span>(<img src="rock.png" />, <span class="dig">20</span>)
+        <span class="cmt"># Good ol' rock, nothing beats rock.</span>
+
+    reg.waitVanish(<img src="MiniGameBet10Button.png" />, <span class="dig">20</span>)
+    <span class="skw">wait</span>(<span class="dig">1.5</span>)
+    <span class="cmt">#_daub_matrix()</span>
+    <span class="kw">print</span>(<span class="str">"Mini-game handling over."</span>)
+
+<span class="kw">def</span> handle_pup_unlock():
+    <span class="kw">if</span> reg.exists(<img src="PUPUnlockedFUE-1.png" />):
+        <span class="kw">assert</span> reg.exists(Pattern(<img src="PUPStoreIcon.png" />).similar(<span class="dig">0.90</span>))
+        <span class="skw">click</span>(reg.getLastMatch())
+</pre>
+</body>
+</html>

@@ -1,0 +1,198 @@
+
+<html>
+   <head>
+      <style type="text/css">
+         .sikuli-code {
+            font-size: 20px;
+            font-family: "Osaka-mono", Monospace;
+            line-height: 1.5em;
+            display:table-cell;
+            white-space: pre-wrap;       /* css-3 */
+            white-space: -moz-pre-wrap !important;  /* Mozilla, since 1999 */
+            white-space: -pre-wrap;      /* Opera 4-6 */
+            white-space: -o-pre-wrap;    /* Opera 7 */
+            word-wrap: break-word;       /* Internet Explorer 5.5+ */
+            width: 99%;   /* remove horizontal scroll-bar when viewing in IE7 */
+         }
+         .sikuli-code img {
+            vertical-align: middle;
+            margin: 2px;
+            border: 1px solid #ccc;
+            padding: 2px;
+            -moz-border-radius: 5px;
+            -webkit-border-radius: 5px;
+            -moz-box-shadow: 1px 1px 1px gray;
+            -webkit-box-shadow: 1px 1px 2px gray;
+         }
+         .kw {
+            color: blue;
+         }
+         .skw {
+            color: rgb(63, 127, 127);
+         }
+
+         .str {
+            color: rgb(128, 0, 0);
+         }
+
+         .dig {
+            color: rgb(128, 64, 0);
+         }
+
+         .cmt {
+            color: rgb(200, 0, 200);
+         }
+
+         h2 {
+            display: inline;
+            font-weight: normal;
+         }
+
+         .info {
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 5px;
+            margin-bottom: 20px;
+            display: none;
+         }
+
+         a {
+            color: #9D2900;
+         }
+
+         body {
+            font-family: "Trebuchet MS", Arial, Sans-Serif;
+         }
+
+      </style>
+   </head>
+<body>
+<div class="info">
+<h2>point.sikuli</h2> <a href="point.zip">(Download this script)</a>
+</div>
+<pre class="sikuli-code">
+<span class="kw">import</span> math
+
+
+<span class="kw">class</span> Point:
+
+    <span class="str">"""A point identified by (x,y) coordinates.
+    
+    supports: +, -, *, /, str, repr
+    
+    length  -- calculate length of vector to point from origin
+    distance_to  -- calculate distance between two points
+    as_tuple  -- construct tuple (x,y)
+    clone  -- construct a duplicate
+    integerize  -- convert x &amp; y to integers
+    floatize  -- convert x &amp; y to floats
+    move_to  -- reset x &amp; y
+    slide  -- move (in place) +dx, +dy, as spec'd by point
+    slide_xy  -- move (in place) +dx, +dy
+    rotate  -- rotate around the origin
+    rotate_about  -- rotate around another point
+    """</span>
+
+    <span class="kw">def</span> __init__(self, x=<span class="dig">0.0</span>, y=<span class="dig">0.0</span>):
+        self.x = x
+        self.y = y
+
+    <span class="kw">def</span> __add__(self, p):
+        <span class="str">"""Point(x1+x2, y1+y2)"""</span>
+        <span class="kw">return</span> Point(self.x+p.x, self.y+p.y)
+
+    <span class="kw">def</span> __sub__(self, p):
+        <span class="str">"""Point(x1-x2, y1-y2)"""</span>
+        <span class="kw">return</span> Point(self.x-p.x, self.y-p.y)
+
+    <span class="kw">def</span> __mul__( self, scalar ):
+        <span class="str">"""Point(x1*x2, y1*y2)"""</span>
+        <span class="kw">return</span> Point(self.x*scalar, self.y*scalar)
+
+    <span class="kw">def</span> __div__(self, scalar):
+        <span class="str">"""Point(x1/x2, y1/y2)"""</span>
+        <span class="kw">return</span> Point(self.x/scalar, self.y/scalar)
+
+    <span class="kw">def</span> __str__(self):
+        <span class="kw">return</span> <span class="str">"(%s, %s)"</span> % (self.x, self.y)
+
+    <span class="kw">def</span> __repr__(self):
+        <span class="kw">return</span> <span class="str">"%s(%r, %r)"</span> % (self.__class__.__name__, self.x, self.y)
+
+    <span class="kw">def</span> length(self):
+        <span class="kw">return</span> math.sqrt(self.x**<span class="dig">2</span> + self.y**<span class="dig">2</span>)
+
+    <span class="kw">def</span> distance_to(self, p):
+        <span class="str">"""Calculate the distance between two points."""</span>
+        <span class="kw">return</span> (self - p).length()
+
+    <span class="kw">def</span> as_tuple(self):
+        <span class="str">"""(x, y)"""</span>
+        <span class="kw">return</span> (self.x, self.y)
+
+    <span class="kw">def</span> clone(self):
+        <span class="str">"""Return a full copy of this point."""</span>
+        <span class="kw">return</span> Point(self.x, self.y)
+
+    <span class="kw">def</span> integerize(self):
+        <span class="str">"""Convert co-ordinate values to integers."""</span>
+        self.x = int(self.x)
+        self.y = int(self.y)
+
+    <span class="kw">def</span> floatize(self):
+        <span class="str">"""Convert co-ordinate values to floats."""</span>
+        self.x = float(self.x)
+        self.y = float(self.y)
+
+    <span class="kw">def</span> move_to(self, x, y):
+        <span class="str">"""Reset x &amp; y coordinates."""</span>
+        self.x = x
+        self.y = y
+
+    <span class="kw">def</span> slide(self, p):
+        <span class="str">'''Move to new (x+dx,y+dy).
+        
+        Can anyone think up a better name for this function?
+        slide? shift? delta? move_by?
+        '''</span>
+        self.x = self.x + p.x
+        self.y = self.y + p.y
+
+    <span class="kw">def</span> slide_xy(self, dx, dy):
+        <span class="str">'''Move to new (x+dx,y+dy).
+        
+        Can anyone think up a better name for this function?
+        slide? shift? delta? move_by?
+        '''</span>
+        self.x = self.x + dx
+        self.y = self.y + dy
+
+    <span class="kw">def</span> rotate(self, rad):
+        <span class="str">"""Rotate counter-clockwise by rad radians.
+        
+        Positive y goes *up,* as in traditional mathematics.
+        
+        Interestingly, you can use this in y-down computer graphics, if
+        you just remember that it turns clockwise, rather than
+        counter-clockwise.
+        
+        The new position is returned as a new Point.
+        """</span>
+        s, c = [f(rad) <span class="kw">for</span> f <span class="kw">in</span> (math.sin, math.cos)]
+        x, y = (c*self.x - s*self.y, s*self.x + c*self.y)
+        <span class="kw">return</span> Point(x,y)
+
+    <span class="kw">def</span> rotate_about(self, p, theta):
+        <span class="str">"""Rotate counter-clockwise around a point, by theta degrees.
+        
+        Positive y goes *up,* as in traditional mathematics.
+        
+        The new position is returned as a new Point.
+        """</span>
+        result = self.clone()
+        result.slide(-p.x, -p.y)
+        result.rotate(theta)
+        result.slide(p.x, p.y)
+        <span class="kw">return</span> result
+</pre>
+</body>
+</html>
